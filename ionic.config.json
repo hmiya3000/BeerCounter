@@ -1,0 +1,7 @@
+{
+  "name": "BeerCounter",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
