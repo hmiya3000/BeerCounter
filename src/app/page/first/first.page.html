@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>身体情報入力</ion-title>
+  </ion-toolbar>
+</ion-header>
+  <ion-content class="scroll-enabled">
+    <ion-item lines="none">
+      <ion-grid>
+        <ion-row>
+          <ion-col class="ion-text-start">アルコール血中濃度やアルコール分解の時間の予測に使います</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class="ion-text-start"><div>あとで[<ion-icon name="information-circle"></ion-icon>Info]タブから変更できます</div></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6"  class="title">体重</ion-col>
+          <ion-col size="6"  class="title">体脂肪率</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="5"><app-numeric-input [value]="weight"     controlKey="weight"       placeholder="70.0" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+          <ion-col size="1" class="unit">kg</ion-col>
+          <ion-col size="5"><app-numeric-input [value]="fatRate100" controlKey="fatRate100"   placeholder="20.0" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+          <ion-col size="1" class="unit">%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class="title">性別</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4" class="tableC" (click)="gender='male'"  ><ion-item lines="none" [class.detail]="gender=='male'"   ><ion-label>男性</ion-label></ion-item></ion-col>
+          <ion-col size="4" class="tableC" (click)="gender='female'"><ion-item lines="none" [class.detail]="gender=='female'" ><ion-label>女性</ion-label></ion-item></ion-col>
+          <ion-col size="4" class="tableC" (click)="gender='other'" ><ion-item lines="none" [class.detail]="gender=='other'"  ><ion-label>その他</ion-label></ion-item></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="5" class="title">酒の強さ</ion-col>
+          <ion-col size="7" class="title">およそのイメージ</ion-col>
+        </ion-row>
+        @for( atol of arrAlcTolerance();  track $index; let idx = $index ){
+          <ion-row (click)="selectAlcTol(atol.level)">
+            <ion-col size="5" class="tableC" ><ion-item lines="none" [class.detail]="alcTolLevel===atol.level">{{atol.name}}</ion-item></ion-col>
+            <ion-col size="7" class="tableL">{{atol.tips}}</ion-col>
+          </ion-row>
+        }
+      </ion-grid>
+    </ion-item>
+    <ion-button (click)="saveData()" expand="block">登録</ion-button>
+  </ion-content>

@@ -1,0 +1,13 @@
+<ion-item button="true" detail="false" (click)="toggleOpen()">
+  <!-- isOpenの状態（true/false）に応じて、文字盤が close / 指定タイトル へと全自動変形します -->
+  <ion-button>{{ isOpen ? 'close' : title }}</ion-button>
+</ion-item> 
+
+@if (isOpen) {
+  <ion-item>
+    <span class="textarea-wrapper">
+      <!-- 最新のAngular規約に則り、プロパティバインディング [value] で型安全に文字を流し込みます -->
+      <ion-textarea class="tips" [readonly]="true" [autoGrow]="true" [value]="text"></ion-textarea>
+    </span>  
+  </ion-item>
+}

@@ -1,0 +1,74 @@
+:host {
+  display: block;
+  width: 100%;
+  -webkit-user-select:  text !important;
+  user-select:          text !important;
+}
+
+.freetext-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.freetext-textarea-style {
+  display: block;
+  width: 100%;
+  text-align: left;
+
+  &::part(textarea) {
+    -webkit-user-select:  text !important;
+    user-select:          text !important;
+  }
+
+  --background: var(--beetre-input-bg);       /* 純白（ダークモード時は自動反転） */
+  --color: var(--beetre-font-normal);         /* 標準の文字色 */
+  --placeholder-color: var(--ion-color-step-400, #a2a2a2); 
+  --placeholder-opacity: 1;    
+  --padding-start: 5px;       
+  --padding-end: 32px;         /* 💡 右側にクリアボタンが置かれるため、少し広めに余白を取ります */
+  --padding-top: 10px;         
+  --padding-bottom: 10px;      
+  
+  border: 1px solid var(--beetre-border-light) !important; 
+  border-radius: 8px;          
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &.ion-focused {
+    border-color: var(--ion-color-primary, #3880ff);    
+    box-shadow: 0 0 4px var(--ion-color-primary-rgba, rgba(56, 128, 255, 0.2)); 
+  }
+}
+
+/* 💡 カスタムクリアボタンのスタイリング */
+.clear-btn {
+  position: absolute;
+  right: -6px;                  /* 右端の余白を微調整 */
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0;
+  
+  /* 💡 解決の最大ポイント：
+     ボタン全体の大きさを「44px × 44px」に広げて、指が押しやすい広大な判定を作ります。
+     fill="clear"（透明ボタン）なので、余白部分が広がっても見た目は崩れません。 */
+  height: 44px;
+  width: 44px;
+  
+  --color: var(--beetre-font-read, #a2a2a2); 
+  --padding-start: 0;          /* 内側の余白をゼロにしてアイコンを中央に固定 */
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  z-index: 10;                 
+
+  /* 💡 アイコン自体の「見た目のサイズ」はここで綺麗にコントロールします */
+  ion-icon {
+    font-size: 20px;           /* もしこれでもアイコン自体が小さく見えたら「22px」などに広げてください */
+  }
+
+  &:active {
+    --color: var(--ion-color-primary, #3880ff);     
+  }
+}

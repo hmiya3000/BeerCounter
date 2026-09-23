@@ -1,0 +1,70 @@
+@if (isInline) {
+  <!-- 🌟【Aルート】：画面に直接直貼りする、むき出しのインラインモード（決定ボタン等なし） -->
+  <div class="inline-picker-wrapper">
+    <ion-picker>
+      <ion-grid class="ion-no-padding">
+        <ion-row class="ion-no-padding">
+          <ion-col [size]="sizeCol0" class="ion-no-padding">
+            <ion-picker-column [value]="selectedValueCol0" (ionChange)="onPickerCol0Change($event)">
+              @for (option of optionsCol0; track option.value) {
+                <ion-picker-column-option [value]="option.value">{{ option.text }}</ion-picker-column-option>
+              }
+            </ion-picker-column>
+          </ion-col>
+          <ion-col [size]="sizeCol1" class="ion-no-padding">
+            <ion-picker-column [value]="selectedValueCol1" (ionChange)="onPickerCol1Change($event)">
+              @for (option of optionsCol1; track option.value) {
+                <ion-picker-column-option [value]="option.value">{{ option.text }}</ion-picker-column-option>
+              }
+            </ion-picker-column>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-picker>
+  </div>
+
+} @else {
+
+  <!-- 🌟【Bルート】：従来の画面の下からニュッと浮き上がるモーダルモード -->
+  <ion-modal
+    id="picker-modal"
+    cssClass="global-picker-modal"
+    [isOpen]="isOpen" 
+    [initialBreakpoint]="pickerInitialBreakpoint" 
+    [breakpoints]="pickerBreakpoints" 
+    [handle]="pickerInitialBreakpoint ? true : false"
+    [backdropDismiss]="true"
+    (ionModalDidDismiss)="cancelPicker()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start"><ion-button (click)="cancelPicker()">キャンセル</ion-button></ion-buttons>
+          <ion-title>{{ headerTitle }}</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="confirmPicker()">設定</ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-picker>
+          <ion-grid class="ion-no-padding">
+            <ion-row class="ion-no-padding">
+              <ion-col [size]="sizeCol0" class="ion-no-padding">
+                <ion-picker-column [value]="selectedValueCol0" (ionChange)="onPickerCol0Change($event)">
+                  @for (option of optionsCol0; track option.value) {
+                    <ion-picker-column-option [value]="option.value">{{ option.text }}</ion-picker-column-option>
+                  }
+                </ion-picker-column>
+              </ion-col>
+              <ion-col [size]="sizeCol1" class="ion-no-padding">
+                <ion-picker-column [value]="selectedValueCol1" (ionChange)="onPickerCol1Change($event)">
+                  @for (option of optionsCol1; track option.value) { 
+                    <ion-picker-column-option [value]="option.value">{{ option.text }}</ion-picker-column-option>
+                  }
+                </ion-picker-column>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-picker>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+}

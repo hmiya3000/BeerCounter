@@ -1,0 +1,400 @@
+<app-swipe-layout
+  [headerTitle]="strPageTitle"
+  [cancelButtonText]="''"
+  [isBackButton]="enableHeaderButton(false,'allParty')"
+  [isForwardButton]="enableHeaderButton(true,'allParty')"
+  (headerClick)="headerClick($event, 'allParty')"
+  (pageSwipe)="headerClick($event, 'allParty')">
+
+
+  <ion-content class="scroll-enabled" #pageContent>
+    @if (!isLastParty){
+      <ion-item class="title">過去の飲み会
+        <ion-button (click)="toLastParty()" slot="end">直近の飲み会</ion-button>
+      </ion-item>
+      <ion-item lines="none"><span style="font-weight: bold; font-size: 1.1rem;">{{strPartyDate}}</span></ion-item>
+    }
+    <ion-item class="title">摂取アルコール
+    </ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="8"></ion-col>
+        <ion-col size="4">ビール中瓶換算</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4" class="param">アルコール量</ion-col>
+        <ion-col size="4" class="param"><ion-item class="inputbutton" [style.--background]="summaryDisplay.bloodBgColor"><ion-label [style.--color]="summaryDisplay.bloodTextColor">{{summaryDisplay.sumAlcohol}}<span class="unit"> g</span></ion-label></ion-item></ion-col>
+        <ion-col size="4" class="param"><ion-item class="inputbutton" [style.--background]="summaryDisplay.bloodBgColor"><ion-label [style.--color]="summaryDisplay.bloodTextColor">{{summaryDisplay.sumAlcoholBottle}}<span class="unit"> 本</span></ion-label></ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4" class="param">飲むはやさ</ion-col>
+        <ion-col size="4" class="param"><ion-item class="inputbutton"><ion-label>{{summaryDisplay.drinkSpeed}}<span class="unit"> g/時間</span></ion-label></ion-item></ion-col>
+        <ion-col size="4" class="param"><ion-item class="inputbutton"><ion-label>{{summaryDisplay.drinkSpeedBottle}}<span class="unit"> 本/時間</span></ion-label></ion-item></ion-col>
+      </ion-row>
+      @for ( s of summaryDisplay.drinkSummary;  track idx; let idx = $index ){
+        <ion-row style="border-bottom: 1px dashed rgba(0,0,0,0.15) !important; padding-bottom: 4px; align-items: center;">
+          <ion-col size="9" class="ion-text-start" style="font-weight: 500; padding-left: 30px;">🔹 {{ s.drink.name }} ({{ s.drink.glass }})</ion-col>
+          <ion-col size="3" style="font-weight: bold;padding-right: 30px;">{{ s.num }}杯</ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+    <!------------------------------------------------------------------------>
+    @if (isDrinkStart && isLoaded){
+      <app-chart
+        [chartHeight]="chartHeight"
+        [chartData]="chartSvc.chartDataMap['drinkTime']"
+        [chartOptions]="chartSvc.chartOptionsMap['drinkTime']"
+        [chartType]="chartSvc.chartTypeMap['drinkTime'] || 'scatter'">
+      </app-chart>
+    }
+    @if (isLastParty){
+      <ion-item lines="none">
+        <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+          <span  (click)="isOpenLimitDrink=true">
+          <ion-button [style.--background]="summaryDisplay.remainAlcBgColor" [style.--color]="summaryDisplay.remainAlcTextColor" class="alcohol-badge">{{summaryDisplay.remainAlcText}}</ion-button>
+          </span>
+          <span>で<span style="font-weight: bold;">[{{summaryDisplay.limitName}}]</span>を越えます</span>
+        </div>
+      </ion-item>
+    }
+    <!------------------------------------------------------------------------>
+    <div class="no-swipe">
+      <ion-grid>
+        <ion-row (click)="modalOpen('alcoholLevel')">
+          <ion-col size="6" class="param">アルコール血中濃度</ion-col>
+          <ion-col size="6" class="param"><ion-item class="inputbutton"  [style.--background]="summaryDisplay.bloodBgColor"><ion-label [style.--color]="summaryDisplay.bloodTextColor">{{summaryDisplay.bloodLevelText}}</ion-label></ion-item></ion-col>
+        </ion-row>
+        @if (isDrinkStart && isLoaded){
+          <ion-row  (click)="modalOpen('alcoholLevel')">
+            <div class="indicator-wrapper" style="position: relative; width: 100%; margin: 16px 0px; padding: 0;">
+              <div class="bar-container" style="position: relative; width: 100%; padding: 0 16px;">
+                <div class="current-pin" 
+                    [style.left]="'calc(7.2% + (' + summaryDisplay.pinLeftPosition + ' * 0.884%))'" 
+                    style="position: absolute; top: -2px; transform: translateX(-50%); z-index: 10; transition: left 0.4s ease-in-out;">
+                  <span style="font-size: 1.4em; color:var(--ion-text-color); line-height: 1;">▼</span>
+                </div>
+                <div class="chart-box" style="width: 100%; padding: 0;">
+                  <app-chart
+                    [chartHeight]="65" 
+                    [chartData]="chartSvc.chartDataMap['drinkTimeIndicator']"
+                    [chartOptions]="chartSvc.chartOptionsMap['drinkTimeIndicator']"
+                    [chartType]="chartSvc.chartTypeMap['drinkTimeIndicator'] || 'bar'">
+                  </app-chart>
+                </div>
+              </div>
+              <div class="axis-labels" style="display: flex; position: relative; padding: 4px 16px 0 16px; font-size: 0.75em; font-weight: bold; color: #555; width: 100%;">
+                <div style="flex-basis: 0%; position: relative;"><span style="position: absolute; left: 0; transform: translateX(-50%);">0</span></div>
+                <div style="flex-basis: 4%; position: relative;"></div>
+                <div style="flex-basis: 6%; position: relative;"><span style="position: absolute; right: 0; transform: translateX(50%);">0.05</span></div>
+                <div style="flex-basis: 12%; position: relative;"><span style="position: absolute; right: 0; transform: translateX(50%);">0.11</span></div>
+                <div style="flex-basis: 10%; position: relative;"><span style="position: absolute; right: 0; transform: translateX(50%);">0.16</span></div>
+                <div style="flex-basis: 30%; position: relative;"><span style="position: absolute; right: 0; transform: translateX(50%);">0.31</span></div>
+                <div style="flex-basis: 20%; position: relative;"><span style="position: absolute; right: 0; transform: translateX(50%);">0.41</span></div>
+                <div style="flex-basis: 18%; position: relative;"><span style="position: absolute; right: 0; transform: translateX(50%);">0.50</span></div>
+              </div>
+            </div>        
+          </ion-row>
+        }
+      </ion-grid>
+      @if (isLastParty && isDrinkStart && isLoaded){
+        <ion-grid>
+          <ion-row>
+            <ion-col size="7">アルコール分解の目安</ion-col>
+            <ion-col size="5"><ion-item class="inputbutton"><ion-label>{{strAlcClearanceTime}}〜</ion-label></ion-item></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="4" (click)="initHourSleep()"> {{hourSleep}}時間睡眠</ion-col>
+            <ion-col size="8"><ion-range [value]="hourSleep" [ticks]="false" [snaps]="true" [min]="0" [max]="16" [step]="1" (ionInput)="onIonRange($event,'ionInput','hourSleep')" (ionChange)="onIonRange($event,'ionChange','hourSleep')"></ion-range></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col><span style="font-size:0.8rem;"><app-freetext-input [value]="tipsAlcClearance" [isReadonly]="true"></app-freetext-input></span></ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="7">不足する水分量</ion-col>
+            <ion-col size="5"><ion-item class="inputbutton"><ion-label>{{summaryDisplay.requiredWater}}</ion-label></ion-item></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col><span style="font-size:0.8rem;"><app-freetext-input [value]="tipsrequiredWater" [isReadonly]="true"></app-freetext-input></span></ion-col>
+          </ion-row>
+        </ion-grid>
+      }
+      <ion-item class="title">注文履歴
+        @if (isLastParty){
+          <ion-button (click)="modalOpen('allDrink')" slot="end">全ドリンク</ion-button>
+        }
+      </ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col class="ion-text-start" style="font-weight: bold; font-size: 1.1rem;">{{strPartyDate}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col><span style="font-size:1.1rem;"><app-freetext-input [value]="partyMemoCurr" [isReadonly]="false" placeholder="メモ(〜50文字)" controlKey="partyMemo" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-freetext-input></span></ion-col>
+        </ion-row>
+        @if (isLastParty){
+          <ion-row>
+            <ion-col><ion-item lines="none"><ion-button (click)="copyMemoPrev()" slot="end">前回のコピー</ion-button></ion-item></ion-col>
+          </ion-row>
+        }
+      </ion-grid>
+      <ion-list #slidingList>
+        @for( d of displayArrDrinkCurr;  track $index; let idx = $index ){
+          <ion-card>
+            <ion-item-sliding>
+             <ion-item lines="none" style="--inner-padding-end: 8px;">
+                <div style="flex: 1; display: flex; flex-direction: column; padding-right: 8px; justify-content: center;" (click)="selectDrink(d.id)">
+                  <span style="margin: 0; padding: 2px 0; color:var( --beetre-font-read);">{{d.displayTime}} </span>
+                  <div style="font-size: 1.15rem; margin: 0; display: flex; align-items: center; font-weight: bold; color: var( --beetre-font-normal);">
+                    <ion-icon name="beer" slot="start" color="warning" style="margin-right: 4px; font-size: 1.3rem;"></ion-icon>
+                    {{d.name}}<span style="font-size: 0.9rem; font-weight: normal; color:var( --beetre-font-read);">&nbsp;({{d.alContent}})</span>
+                  </div>
+                  <ion-label style="margin: 0; padding: 2px 0; color:var( --beetre-font-normal);">{{d.glass}}&nbsp;<span style="color:var( --beetre-font-read);">({{d.ml}}) × {{d.coef}}</span></ion-label>
+                  @if (isLastParty){
+                    <ion-button [style.--background]="d.bgColor" [style.--color]="d.textColor" class="alcohol-badge">{{d.alcoholText}}</ion-button>
+                  }
+                </div>
+                @if (isLastParty){
+                  <ion-button (click)="$event.stopPropagation(); drink1up(d.id)" slot="end" size="small">おかわり</ion-button>
+                } @else {
+                  <ion-button [style.--background]="d.bgColor" [style.--color]="d.textColor" class="alcohol-badge">{{d.alcoholText}}</ion-button>
+                }
+              </ion-item>
+              <ion-item-options side="start">
+                <ion-item-option (click)="openChangeDrinkTime(d.id,false,true)"><ion-icon slot="start" name="time-outline"></ion-icon>変更</ion-item-option>
+              </ion-item-options>
+              <ion-item-options side="end">
+                <ion-item-option color="danger" (click)="deleteDrink(d.id)"><ion-icon slot="start" name="trash"></ion-icon>削除</ion-item-option>
+              </ion-item-options>
+            </ion-item-sliding>
+          </ion-card>
+        }
+      </ion-list>
+      <div class="android-scroll-spacer"></div>
+    </div>
+  </ion-content>
+</app-swipe-layout>
+
+<ion-loading [isOpen]="isConverting" message="Loading..."></ion-loading>
+
+<ion-modal [isOpen]="isOpenLimitDrink" (ionModalDidDismiss)="isOpenLimitDrink=false" class="alert-like-modal">
+  <ng-template>
+    <div class="modal-wrapper">
+      <div class="alert-body">
+        <p><ion-icon name="beer" slot="start" color="warning" style="margin-right: 4px; font-size: 1.3rem;"></ion-icon><b>{{ lastDrink }}</b>なら</p>
+      </div>
+      <div class="alert-header">
+        <h2>{{remainNum}}</h2>
+      </div>
+
+      <div class="alert-footer">
+        <ion-button expand="block" (click)="isOpenLimitDrink=false">閉じる</ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenAlcoholLevel"
+  headerTitle="アルコール血中濃度"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalCancel()">
+  <ion-content class="scroll-enabled">
+  <span tyle="font-size: 90%;">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="3" class="title">段階</ion-col>
+        <ion-col size="2" class="title">濃度</ion-col>
+        <ion-col size="7" class="title">主な状態</ion-col>
+      </ion-row>
+      @for ( bac of arrTipsBloodAlcohol; track $index; let idx = $index ) {
+        <ion-row>
+          <ion-col size="3" class="tableC" [style.background-color]="bac.bgColor" [style.color]="bac.textColor">{{bac.name}}</ion-col>
+          <ion-col size="2" class="tableC" [style.background-color]="bac.bgColor" [style.color]="bac.textColor">{{bac.bac100}}</ion-col>
+          <ion-col size="7" class="tableL">{{bac.explain}}</ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+  </span>
+  <ion-item lines="none">
+    <ion-button (click)="openBrowser('https://www.arukenkyo.or.jp/health/base/index.html')">アルコール健康医学協会</ion-button>
+  </ion-item>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenDrinkDetail"
+  headerTitle='ドリンク詳細'
+  [breakpoints]="[0, 0.9,1]"
+  [initialBreakpoint]="0.9"
+  [confirmButtonText]="isEditDrink ? '更新' : '編集'"
+  [cancelButtonText]="'閉じる'"
+  [isBackButton]="enableHeaderButton(false,'drinkDetail')"
+  [isForwardButton]="enableHeaderButton(true,'drinkDetail')"
+  (headerClick)="modalHeaderClick($event, 'drinkDetail')"
+  (pageSwipe)="isEditDrink ? null : modalHeaderClick($event, 'drinkDetail')"
+  (onConfirm)="isEditDrink ? modalConfirm(true,'drinkDetail') : changeEditDrink()"
+  (onCancel)="modalConfirm(false,'drinkDetail')">
+  <ion-content class="scroll-enabled">
+    <ion-item lines="none" class="ion-no-padding">
+      <ion-grid>
+        <ion-row>
+          @if (isEditDrink){
+            <ion-col size="7">
+              <app-inline-datetime
+                [triggerId]="'drinkDetail'"
+                [baseUtcDate]="utcDateCurr"
+                (onDateConfirmed)="utcDateCurr = $event">
+              </app-inline-datetime>
+            </ion-col>
+            <ion-col size="5"><ion-item class="inputbutton" (click)="openChangeDrinkTime(curDrink.id,true,false)" ><ion-icon name="time-outline" color="primary" slot="start"></ion-icon><ion-label>{{utcDateCurr| date : 'HH:mm'}}</ion-label></ion-item></ion-col>
+          } @else {
+            <ion-col size="4">日時</ion-col>
+            <ion-col size="8"><ion-item class="button" (click)="changeEditDrink()"><ion-label>{{utcDateCurr| date : 'yyyy/MM/dd HH:mm'}}</ion-label></ion-item></ion-col>
+          }
+        </ion-row>
+        <ion-row>
+          <ion-col size="9" style="font-weight:bold">
+            <ion-item lines="none">
+              <ion-icon name="beer" slot="start" color="warning" style="margin-right: 1px; font-size: 1.6rem;"></ion-icon>
+                {{curDrink.name}}
+            </ion-item>
+          </ion-col>
+          <ion-col size="3" class="ion-text-end" style="align-self: center;"><span style="white-space: nowrap;"><strong style="font-weight: bold;">{{strDrinkAlContent(alContent1000Curr/1000)}}</strong><span class="unit">度</span></span></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="9"><ion-range [disabled]="!isEditDrink" [value]="alContent1000Curr" [ticks]="false" [snaps]="true" [min]="alMin1000" [max]="alMax1000" [step]="alStep1000" (ionInput)="onIonRange($event,'ionInput','alContent')" (ionChange)="onIonRange($event,'ionChange','alContent')"></ion-range></ion-col>
+          @if (isEditDrink){
+            <ion-col size="3"><ion-item class="button-mini" (click)="initAlContent()"><ion-label>{{strDrinkAlContent(curDrink.alContent)}}度</ion-label></ion-item></ion-col>
+          } @else {
+            <ion-col size="3"></ion-col>
+          }
+        </ion-row>
+        <ion-row>
+          <ion-col size="9" style="font-weight:bold"><ion-item lines="none"><ion-icon name="wine" slot="start" color="tertiary" style="margin-right: 1px; font-size: 1.6rem;"></ion-icon>{{curDrink.glass}}</ion-item></ion-col>
+          <ion-col size="3" class="ion-text-end" style="align-self: center;"><span style="white-space: nowrap;"><strong style="font-weight: bold;">{{strDrinkMl(mlCurr)}}</strong><span class="unit">ml</span></span></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="9"><ion-range [disabled]="!isEditDrink" [value]="mlCurr" [ticks]="false" [snaps]="true" [min]="mlMin" [max]="mlMax" [step]="mlStep" (ionInput)="onIonRange($event,'ionInput','ml')" (ionChange)="onIonRange($event,'ionChange','ml')"></ion-range></ion-col>
+          @if (isEditDrink){
+              <ion-col size="3"><ion-item class="button-mini" (click)="initMl()"><ion-label>{{strDrinkMl(curDrink.ml)}}ml</ion-label></ion-item></ion-col>
+          } @else {
+              <ion-col size="3"></ion-col>
+          }
+        </ion-row>
+        <ion-row>
+          <ion-col size="9" style="font-weight:bold" class="ion-text-start"><ion-item lines="none"><ion-icon name="water" slot="start" color="tertiary" style="margin-right: 1px; font-size: 1.6rem;"></ion-icon>内容量({{strDrinkCoef(coef100Curr/100)}})</ion-item></ion-col>
+          <ion-col size="3" class="ion-text-end" style="align-self: center;"><span style="white-space: nowrap;"><strong style="font-weight: bold;">{{strDrinkMl(mlCurr*coef100Curr/100)}}</strong><span class="unit">ml</span></span></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="9"><ion-range [disabled]="!isEditDrink" [value]="coef100Curr" [ticks]="false" [snaps]="true" [min]="10" [max]="100" step="5" (ionInput)="onIonRange($event,'ionInput','coef')" (ionChange)="onIonRange($event,'ionChange','coef')"></ion-range></ion-col>
+          @if (isEditDrink){
+            <ion-col size="3"><ion-item class="button-mini" (click)="initCoef()"><ion-label>{{strDrinkCoef(curDrink.coef)}}</ion-label></ion-item></ion-col>
+          } @else {
+            <ion-col size="3"></ion-col>
+          }
+        </ion-row>
+        <ion-row> 
+          <ion-col size="8"></ion-col>
+          <ion-col size="4"><ion-button [style.--background]="strAlcoholCurr.bgColor" [style.--color]="strAlcoholCurr.textColor" class="alcohol-badge">{{strAlcoholCurr.text}}</ion-button></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4"><ion-button (click)="changeEditDrink()">{{isEditDrink ? '保護' : '編集'}}</ion-button></ion-col>
+          @if (isEditDrink){
+            <ion-col size="4"></ion-col>
+            <ion-col size="4"><ion-button color="danger" (click)="deleteDrink(curDrink.id)">削除</ion-button></ion-col>        
+          } @else {
+            <ion-col size="8"></ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenAllParty"
+  headerTitle='飲み会リスト'
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalCancel()">
+  <ion-content class="scroll-enabled">
+    @if (displayArrParty.length === 0){
+      <ion-item lines="none">
+        履歴なし
+      </ion-item>
+    } @else {
+      <ion-list>
+        @for ( p of displayArrParty; track p.originalIndex; let idx = $index ){
+          <ion-card (click)="selectParty(p.originalIndex)">
+            <ion-item [class.detail]="p.isTarget">
+              <div style="flex: 1; display: flex; flex-direction: column; padding-right: 8px; justify-content: center;">
+                <span style="margin: 0; padding: 2px 0; color: var(--beetre-font-read);">
+                  {{p.displayTime}}〜
+                </span>
+                <div style="font-size: 1.15rem; margin: 0; display: flex; align-items: center; font-weight: bold; color: var(--beetre-font-normal);">
+                  <ion-icon name="document-text-outline" slot="start" style="margin-right: 4px; font-size: 1.3rem;"></ion-icon>
+                  {{p.num}}杯<span style="font-size: 0.9rem; font-weight: normal; color: var(--beetre-font-read);">&nbsp;({{p.drinkSpeedText}}<span class="unit"> g/時間</span>)</span>
+                </div>
+              </div>
+              <div class="ion-text-center" style="height: 2.0rem; width: 120px; display: flex; align-items: stretch; margin-right: 8px;">
+                <ion-button [style.--background]="p.bgColor" [style.--color]="p.textColor" style="height: 100%; width: 100%; margin: 0; --border-radius: 6px; font-size: 1.0rem; pointer-events: none;">
+                  {{p.sumAlcoholText}}
+                </ion-button>
+              </div>
+            </ion-item>
+            @if (p.memo.trim() !== ''){
+              <ion-item class="inputbutton"><span class="single-line-text" style="font-size:0.8rem;padding: 5px;">{{p.memo}}</span></ion-item>
+            }
+          </ion-card>
+        }
+      </ion-list>
+    }
+    <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenAllDrink"
+  [headerTitle]="isNoDuplicateDrink ?  '重複なし履歴' : '全ドリンク'"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="'切替'"
+  [cancelButtonText]="'閉じる'"
+  (onConfirm)="changeDuplicateDrink()"
+  (onCancel)="modalCancel()">
+  <ion-content class="scroll-enabled">
+    @if (displayArrDrinkAll.length === 0){
+      <ion-item lines="none">
+        履歴なし
+      </ion-item>
+    } @else {
+      <ion-list>
+        @for ( d of displayArrDrinkAll;  track $index; let idx = $index ){
+          <ion-card>
+            <ion-item lines="none" style="--inner-padding-end: 8px;">
+              <div style="display: flex; flex-direction: column; width: 100%;" (click)="selectDrink(d.id)">
+                <ion-label style="margin: 0; padding: 2px 0; color: var( --beetre-font-read);">{{d.displayDateHM}} </ion-label>
+                <ion-label style="font-size: 1.15rem; margin: 0; display: flex; align-items: center; font-weight: bold; color: var( --beetre-font-normal);">
+                  <ion-icon name="beer" slot="start" color="warning" style="margin-right: 4px; font-size: 1.3rem;"></ion-icon>
+                  {{d.name}}<span style="font-size: 0.9rem; font-weight: normal; color:var( --beetre-font-read);">&nbsp;({{d.alContent}})</span>
+                </ion-label>
+                <ion-label style="margin: 0; padding: 2px 0; color:var( --beetre-font-normal);">{{d.glass}}&nbsp;<span style="color:var( --beetre-font-read);">({{d.ml}}) × {{d.coef}}</span></ion-label>
+                <ion-button [style.--background]="d.bgColor" [style.--color]="d.textColor" class="alcohol-badge">{{d.alcoholText}}</ion-button>
+              </div>
+              <ion-button (click)="drink1up(d.id)" slot="end" size="small">おかわり</ion-button>
+            </ion-item>
+          </ion-card>
+        }
+      </ion-list>
+    }
+    <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>
+

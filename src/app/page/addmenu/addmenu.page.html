@@ -1,0 +1,103 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="confirm(false)">戻る</ion-button>  
+      </ion-buttons>
+      <ion-title>マイメニュー追加</ion-title>
+      <ion-buttons slot="end">
+        <ion-button  (click)="confirm(true)">決定</ion-button>  
+      </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="scroll-enabled">
+  <ion-header collapse="condense">
+    <ion-toolbar class="title">
+      <ion-title>マイメニュー追加</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="scroll-enabled">
+    <ion-item class="title">種類:度数</ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col>名前</ion-col>
+        <ion-col>度数</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="7"><app-freetext-input [placeholder]="'名前'" [value]="name" controlKey="name" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-freetext-input></ion-col>
+        <ion-col size="5"><app-numeric-input [value]="alContent" controlKey="alContent" placeholder="00" inputMode="numeric" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" (click)="modalOpen('addAlcohol')"><ion-label>アルコール</ion-label></ion-item></ion-col>
+        <ion-col></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>グラス名</ion-col>
+        <ion-col>容量</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="7"><app-freetext-input [placeholder]="'グラス名'" [value]="glass" controlKey="glass" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-freetext-input></ion-col>
+        <ion-col size="5"><app-numeric-input [value]="ml" controlKey="ml" placeholder="00" inputMode="numeric" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" (click)="modalOpen('addGlass')"><ion-label>グラス</ion-label></ion-item></ion-col>
+        <ion-col></ion-col>
+      </ion-row>
+    </ion-grid>
+    
+    
+
+
+
+    <div class="android-scroll-spacer"></div>
+  </ion-content>
+</ion-content>
+
+<app-shared-modal
+  [isOpen]="isOpenAddAlcohol"
+  headerTitle="アルコール"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  (onConfirm)="modalConfirm('addAlcohol')"
+  (onCancel)="modalCancel()">
+    <ion-content>
+      <ion-item class="title">アルコール</ion-item>
+      <ion-radio-group value="{{idxAlcohol}}" (ionChange)="onIonRadio($event,'addAlcohol')">
+        <ion-list>
+        @for ( pair of nameAlList; track $index; let idx = $index ){
+          <ion-item>
+            <ion-radio value="{{idx}}" labelPlacement="end" justify="start">{{strAlcohol(pair)}}</ion-radio>
+          </ion-item>
+        } @empty {
+          <ion-item><ion-label>データがありません</ion-label></ion-item>    
+        }
+        </ion-list>
+      </ion-radio-group>
+      <div class="android-scroll-spacer"></div>
+    </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenAddGlass"
+  headerTitle="グラス"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  (onConfirm)="modalConfirm('addGlass')"
+  (onCancel)="modalCancel()">
+    <ion-content>
+      <ion-item class="title">グラス</ion-item>
+      <ion-radio-group value="{{idxGlass}}" (ionChange)="onIonRadio($event,'addGlass')">
+        <ion-list>
+        @for ( pair of glassMlList; track $index; let idx = $index ){
+          <ion-item>
+            <ion-radio value="{{idx}}" labelPlacement="end" justify="start">{{strGlass(pair)}}</ion-radio>
+          </ion-item>
+        } @empty {
+          <ion-item><ion-label>データがありません</ion-label></ion-item>    
+        }
+        </ion-list>
+      </ion-radio-group>
+      <div class="android-scroll-spacer"></div>
+    </ion-content>
+</app-shared-modal>

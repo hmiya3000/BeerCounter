@@ -1,0 +1,54 @@
+<ion-item class="inputbutton" [id]="triggerId" (click)="prepareCalMonth()">
+  <ion-icon name="calendar-outline" color="primary" slot="start"></ion-icon>
+  <ion-label>{{ baseUtcDate | date : 'yyyy/MM/dd' }}</ion-label>
+</ion-item>
+
+<ion-popover [trigger]="triggerId" size="cover" alignment="start" css-class="smooth-datetime-popover" #popoverElement>
+  <ng-template>
+    <div style="padding: 8px 16px 4px 16px; background: var(--ion-background-color);">
+      <ion-segment [value]="datetimeMode" 
+                   (ionChange)="datetimeMode = $any($event).detail.value" 
+                   mode="ios" 
+                   style="margin: 0;">
+        <ion-segment-button value="calendar">
+          <ion-label style="font-weight: bold;">カレンダーから選ぶ</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="input">
+          <ion-label style="font-weight: bold;">数字8桁で直接入力</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+    <div [style.display]="datetimeMode === 'calendar' && isDatetimeRendered ? 'block' : 'none'">
+      <ion-datetime 
+        name="日付" 
+        presentation="date" 
+        [value]="initialCalMonth" 
+        class="smooth-datetime"
+        (ionChange)="ionDatetime($event, popoverElement)">
+      </ion-datetime>
+    </div>
+    <div [style.display]="datetimeMode === 'input' ? 'block' : 'none'" 
+      style="padding: 12px 16px 4px 16px; background: var(--ion-background-color);">
+      <ion-item lines="outline" style="--border-radius: 8px; --background: var(--ion-item-background, #f4f5f8);">
+        <ion-icon name="create-outline" slot="start" color="medium"></ion-icon>
+        <ion-input 
+          type="tel" 
+          inputmode="numeric" 
+          maxlength="8" 
+          placeholder="数字8桁で入力 (例: 20260904)" 
+          (ionInput)="onDirectDateInput($event, popoverElement)"
+          style="font-weight: bold; letter-spacing: 2px;">
+        </ion-input>
+      </ion-item>
+    </div>
+
+    <div style="display: flex; width: 100%; justify-content: space-between; padding: 8px 16px; background: var(--ion-background-color);">
+      <ion-button (click)="goToCurrentMonth()" color="primary" fill="clear" style="margin: 0; font-weight: bold;">
+        今日
+      </ion-button>
+      <ion-button (click)="popoverElement.dismiss()" color="medium" fill="clear" style="margin: 0;">
+        閉じる
+      </ion-button>
+    </div>
+  </ng-template>
+</ion-popover>

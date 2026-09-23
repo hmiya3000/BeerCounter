@@ -1,0 +1,267 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Info</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="scroll-enabled">
+  <ion-item class="title ion-padding" lines="none">
+    ビア＋＋<br>
+    - Beer Plus Plus -<br>
+    version.{{version}} / grade : {{modeName}}
+  </ion-item>
+  <ion-item lines="none">
+    <span class="textarea-wrapper">
+      <ion-textarea class="tips" [readonly]="true" [autoGrow]="true" value={{info}}></ion-textarea>
+    </span>  
+  </ion-item>
+  <ion-item class="title"  (click)="changeDispBody()">身体情報<ion-button slot="end"><div class="unit">{{isDispBody ? '非表示' : '表示'}}</div></ion-button></ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">体重</ion-col>
+        <ion-col size="6">体脂肪率</ion-col>
+      </ion-row>
+      @if (isDispBody){
+        <ion-row (click)="modalOpen('weight')">
+          <ion-col size="6"><ion-item class="inputbutton"><ion-label>{{weight}} kg</ion-label></ion-item></ion-col>
+          <ion-col size="6"><ion-item class="inputbutton"><ion-label>{{fatRate100}} %</ion-label></ion-item></ion-col>
+        </ion-row>
+      } @else {
+        <ion-row  (click)="changeDispBody()">
+          <ion-col size="6"><ion-item class="inputreadonly"><ion-label>〇〇 kg</ion-label></ion-item></ion-col>
+          <ion-col size="6"><ion-item class="inputreadonly"><ion-label>〇〇 %</ion-label></ion-item></ion-col>
+        </ion-row>
+      }
+      <ion-row>
+        <ion-col size="3">性別</ion-col>
+        <ion-col size="4">酒の強さ</ion-col>
+        <ion-col size="4"></ion-col>
+      </ion-row>
+      @if (isDispBody){
+        <ion-row (click)="modalOpen('alcTolerance')">
+          <ion-col size="3"><ion-item class="inputbutton"><ion-label>{{strGender()}}</ion-label></ion-item></ion-col>
+          <ion-col size="4"><ion-item class="inputbutton"><ion-label>{{strNameAlcoholTolerance()}}</ion-label></ion-item></ion-col>
+          <ion-col size="5"class="ion-text-start"><span style="font-size:0.8rem;">{{strTipsAlcoholTolerance()}}</span></ion-col>
+        </ion-row>
+      } @else {
+        <ion-row (click)="changeDispBody()">
+          <ion-col size="3" class="ion-text-start"><ion-item class="inputreadonly"><ion-label>◯◯</ion-label></ion-item></ion-col>
+          <ion-col size="4" class="ion-text-start"><ion-item class="inputreadonly"><ion-label>◯◯◯</ion-label></ion-item></ion-col>
+          <ion-col size="5" class="ion-text-start"><span style="font-size:0.8rem;"> アルコール分解の体質</span></ion-col>
+        </ion-row>
+      }
+      <ion-row>
+        <ion-col size="4">γ-GTP</ion-col>
+        <ion-col size="4">AST(GOT)</ion-col>
+        <ion-col size="4">ALT(GPT)</ion-col>
+      </ion-row>
+      @if (isDispBody){
+        <ion-row (click)="modalOpen('ggtp')">
+          <ion-col size="4"><ion-item class="inputbutton"><ion-label>{{ggtp}} U/L</ion-label></ion-item></ion-col>
+          <ion-col size="4"><ion-item class="inputbutton"><ion-label>{{astgot}} U/L</ion-label></ion-item></ion-col>
+          <ion-col size="4"><ion-item class="inputbutton"><ion-label>{{altgpt}} U/L</ion-label></ion-item></ion-col>
+        </ion-row>
+      } @else {
+        <ion-row (click)="changeDispBody()">
+          <ion-col size="4"><ion-item class="inputreadonly"><ion-label>〇〇 U/L</ion-label></ion-item></ion-col>
+          <ion-col size="4"><ion-item class="inputreadonly"><ion-label>〇〇 U/L</ion-label></ion-item></ion-col>
+          <ion-col size="4"><ion-item class="inputreadonly"><ion-label>〇〇 U/L</ion-label></ion-item></ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+    <ion-item class="title">ツール</ion-item>
+    <ion-grid>
+      <ion-row>
+      <ion-col size="4"><ion-button (click)="allClear()" color="danger" size="small">設定クリア</ion-button></ion-col>
+      <ion-col size="4">
+      </ion-col>
+      <ion-col size="4">
+        @if (isAdmin) {
+          <ion-button (click)="changeAdminMode()" size="small">管理者</ion-button>
+        }
+      </ion-col>
+    </ion-row>
+    @if (isAppWithAd){
+      <ion-row>
+        <ion-col>{{strExpireDate}}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4"></ion-col>
+        <ion-col size="4"><ion-button (click)="watchAd()" [disabled]="!isAppWithAd" size="small">広告を見る</ion-button></ion-col>
+        <ion-col size="4"></ion-col>
+      </ion-row>
+    }
+  </ion-grid>
+
+  <app-debug></app-debug>
+  <div class="android-scroll-spacer"></div>
+</ion-content>
+
+<app-shared-modal
+  [isOpen]="isOpenWeight"
+  headerTitle="体重・体脂肪率"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalConfirm(false,'weight')">
+  <ion-content class="scroll-enabled">
+    <ion-item class="title">入力</ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="5">計測日</ion-col>
+        <ion-col size="7">
+          <app-inline-datetime
+            [triggerId]="'weight'"
+            [baseUtcDate]="utcDateCurr"
+            (onDateConfirmed)="utcDateCurr = $event">
+          </app-inline-datetime>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="6">体重</ion-col>
+        <ion-col size="6">体脂肪率</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="5"><app-numeric-input [value]="weight"     controlKey="weight"       placeholder="70.0" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+        <ion-col size="1" class="unit">kg</ion-col>
+        <ion-col size="5"><app-numeric-input [value]="fatRate100" controlKey="fatRate100"   placeholder="20.0" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+        <ion-col size="1" class="unit">%</ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-item lines="none"><ion-button (click)="saveData('weight')" slot="end">登録</ion-button></ion-item>
+    <app-tips-item [title]="'tips'" [text]="tipsWeight"></app-tips-item>
+    <ion-item class="title">履歴</ion-item>
+    <ion-list #slidingListWeight>
+      @for ( b of arrBodyInfo.slice().reverse();  track $index; let idx = $index ){
+        <ion-item-sliding>
+          <ion-item (click)="selectBodyInfo(b)">
+            <ion-grid>
+              <ion-row>
+                <ion-col class="ion-text-start">{{strInfoDate(b.time)}}</ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="6">{{strWeight(b)}}</ion-col>
+                <ion-col size="6">{{strFatRate(b)}}</ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="deleteBodyInfo(b.id)"><ion-icon slot="start" name="trash"></ion-icon>削除</ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      }
+    </ion-list>
+    <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenGgtp"
+  headerTitle="肝機能数値"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalConfirm(false,'ggtp')">
+  <ion-content class="scroll-enabled">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="5">計測日</ion-col>
+        <ion-col size="7">
+          <app-inline-datetime
+            [triggerId]="'ggtp'"
+            [baseUtcDate]="utcDateCurr"
+            (onDateConfirmed)="utcDateCurr = $event">
+          </app-inline-datetime>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4">γ-GTP</ion-col>
+        <ion-col size="4">AST(GOT)</ion-col>
+        <ion-col size="4">ALT(GPT)</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4"><app-numeric-input [value]="ggtp"   controlKey="ggtp"   placeholder="30" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+        <ion-col size="4"><app-numeric-input [value]="astgot" controlKey="astgot" placeholder="30" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+        <ion-col size="4"><app-numeric-input [value]="altgpt" controlKey="altgpt" placeholder="30" (onUpdate)="onIonInputBlur($event.event, $event.type, $event.key)"></app-numeric-input></ion-col>
+      </ion-row>
+    </ion-grid>
+  <ion-item lines="none"><ion-button (click)="saveData('ggtp')" slot="end">登録</ion-button></ion-item>
+  <app-tips-item [title]="'tips'" [text]="tipsGgtp"></app-tips-item>
+  <ion-item class="title">履歴</ion-item>
+    <ion-list #slidingListGgtp>
+      @for ( b of arrBloodInfo.slice().reverse();  track $index; let idx = $index ){
+        <ion-item-sliding>
+          <ion-item (click)="selectBloodInfo(b)">
+            <ion-grid>
+              <ion-row>
+                <ion-col class="ion-text-start">{{strInfoDate(b.time)}}</ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="4"><ion-label [style.color]="colorGgtp(b.ggtp).bgColor">{{b.ggtp}}U/L</ion-label></ion-col>
+                <ion-col size="4"><ion-label [style.color]="colorAst(b.astgot).bgColor">{{b.astgot}}U/L</ion-label></ion-col>
+                <ion-col size="4"><ion-label [style.color]="colorAlt(b.altgpt).bgColor">{{b.altgpt}}U/L</ion-label></ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="deleteBloodInfo(b.id)"><ion-icon slot="start" name="trash"></ion-icon>削除</ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      }
+    </ion-list>
+  <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenAlcTolerance"
+  headerTitle="体質"
+  [breakpoints]="[0, 0.7, 1]"
+  [initialBreakpoint]="0.7"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalConfirm(false,'alcTolerance')">
+  <ion-content class="scroll-enabled">
+    <ion-grid>
+      <ion-row>
+        <ion-col class="title">性別</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="4" class="tableC" (click)="selectGender('male')"><ion-item lines="none" [class.detail]="gender=='male'"   >男性</ion-item></ion-col>
+        <ion-col size="4" class="tableC" (click)="selectGender('female')"><ion-item lines="none" [class.detail]="gender=='female'" >女性</ion-item></ion-col>
+        <ion-col size="4" class="tableC" (click)="selectGender('other')" ><ion-item lines="none" [class.detail]="gender=='other'"  >その他</ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="5" class="title">酒の強さ</ion-col>
+        <ion-col size="7" class="title">およそのイメージ</ion-col>
+      </ion-row>
+      @for( atol of arrAlcTolerance();  track $index; let idx = $index ){
+        <ion-row (click)="selectAlcTol(atol.level)">
+          <ion-col size="5" class="tableC" ><ion-item lines="none" [class.detail]="alcTolLevel===atol.level">{{atol.name}}</ion-item></ion-col>
+          <ion-col size="7" class="tableL">{{atol.tips}}</ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+    <ion-item>アルコール血中濃度やアルコール分解の時間の予測に使います</ion-item>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenAdReward"
+  headerTitle="広告ダウンロード"
+  [showConfirmButton]="false"
+  cancelButtonText="中断"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  (onCancel)="modalClosePreAdReward()">
+    <ion-content class="ion-padding"  scrollY="false">
+      @if (!isErrorAdReward){
+        <ion-label>広告ダウンロード中</ion-label>
+      } @else {
+        <ion-label>広告ダウンロード失敗</ion-label><br><br><br>
+        <ion-button (click)="modalClosePreAdReward()">閉じる</ion-button>
+      }
+    </ion-content>
+</app-shared-modal>

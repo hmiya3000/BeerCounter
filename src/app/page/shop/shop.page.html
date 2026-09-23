@@ -1,0 +1,161 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{strTitle}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button aria-label="changeMenu" (click)="changeMenu()" fill="solid" color="primary">{{strChangeButton}}</ion-button>  
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+  @if (!isLoaded) {
+  <ion-content class="scroll-enabled">
+    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+  </ion-content>
+  } @else {
+    <ion-split-pane content-id="main-content" [when]="true">
+      <ion-menu content-id="main-content">
+        <ion-content class="scroll-enabled">
+          <ion-list>
+            @for( menu of menuList; track $index; let idx = $index ){
+              <ion-item (click)="scrollToMenu(idx)">
+                <ion-label [style.font-weight]="activeIndex === idx ? 'bold' : 'normal'"
+                          [style.color]="activeIndex === idx ? 'var(--ion-color-primary)' : 'inherit'"
+                          style="font-size: 80%">
+                  {{menu.name}}
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+          <ion-item lines="none">
+            <ion-button (click)="Nav.to(router, 'tab-party/measure')" slot="end">ジョッキ計測</ion-button>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-button (click)="Nav.to(router, 'addmenu')" slot="end">マイメニュー追加</ion-button>
+          </ion-item>
+        </ion-content>
+      </ion-menu>
+      <div class="ion-page" id="main-content">
+        <ion-content #rightContent class="scroll-enabled" [scrollEvents]="true" (ionScroll)="onRightScroll($event)">
+          <span style="font-size: 80%">
+            <ion-grid>
+            @for( menu of menuList; track $index; let idx = $index ){
+              <ion-row  [id]="'menu-' + idx">
+                <ion-col class="title">{{menu.name}}</ion-col>
+                <ion-col class="title">{{menu.strContent}}</ion-col>
+              </ion-row>
+              @for( item of menu.items; track $index; let idx2 = $index ){
+                <ion-row class="ion-no-padding">
+                  <ion-col>
+                    <ion-card class="dense-card"  button="true" (click)="selectDrink(item.ID)">
+                      <ion-grid class="ion-no-padding">
+                        <ion-row>
+                          <ion-col style="font-weight:bold"><ion-item lines="none"><ion-icon name="beer" slot="start" color="warning" style="margin-right: 1px; font-size: 1.2rem;"></ion-icon>{{menu.name}}</ion-item> </ion-col>
+                          <ion-col style="font-weight:bold">{{item['容器']}}</ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col>{{item['補足']}}</ion-col>
+                          <ion-col>{{item['分量']}}</ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col size="3">{{strCoef(item.ID)}}</ion-col>
+                          <ion-col size="5"></ion-col>
+                          <ion-col size="4"><ion-button [style.--background]="colorAlcohol(item).bgColor" [style.--color]="colorAlcohol(item).textColor" class="alcohol-badge">{{strAlcohol(item)}}</ion-button></ion-col>
+                        </ion-row>
+                      </ion-grid>
+                    </ion-card>
+                  </ion-col>
+                </ion-row>
+              }
+            }
+            </ion-grid>
+          </span>
+          <div class="android-scroll-spacer"></div>
+        </ion-content>
+      </div>
+    </ion-split-pane>    
+  }
+
+
+<app-shared-modal
+  [isOpen]="isOpenInfomation"
+  headerTitle='インフォメーション'
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalCancel()">
+  <ion-content class="scroll-enabled">
+
+    案内みたいなことをなんか書く
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenOrderConfirm"
+  [headerTitle]="strTitleOrderConfirm"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalConfirm(false,'orderConfirm')">
+  <ion-content class="scroll-enabled">
+    @if (selectItem){
+      @if (!selectItem['補足'] || selectItem['補足'].trim() === '') {
+        <ion-item class="title">{{selectItem['容器']}}
+        </ion-item>
+      } @else {
+        <ion-item class="title">{{selectItem['容器']}} ({{selectItem['補足']}})</ion-item>
+      }
+      <ion-item lines="none" class="ion-no-padding">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="9" style="font-weight:bold" class="ion-text-start" (click)="openBrowser('alcohol')" >
+              <ion-item lines="none">
+                <ion-button slot="start" style="margin-right: 4px;"><ion-icon name="search-outline"></ion-icon></ion-button>
+                {{selectItem.name}}
+              </ion-item>
+            </ion-col>
+            <ion-col size="3" class="ion-text-end" style="align-self: center;"><span style="white-space: nowrap;"><strong style="font-weight: bold;">{{strAlContentCurr}}</strong><span class="unit">度</span></span></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="9"><ion-range [value]="alContent1000Curr" [ticks]="false" [snaps]="true" [min]="alMin1000" [max]="alMax1000" [step]="alStep1000" (ionInput)="onIonRange($event,'ionInput','alContent',selectItem.ID)" (ionChange)="onIonRange($event,'ionChange','alContent',selectItem.ID)"></ion-range></ion-col>
+            <ion-col size="3"><ion-item class="button-mini" (click)="initAlContent()"><ion-label>{{strAlContentInit}}</ion-label></ion-item></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="9" style="font-weight:bold" class="ion-text-start" (click)="openBrowser('glass')">
+              <ion-item lines="none">
+                <ion-button slot="start" style="margin-right: 4px;"><ion-icon name="search-outline"></ion-icon></ion-button>
+                {{selectItem.glass}}
+              </ion-item>
+            </ion-col>
+            <ion-col size="3" class="ion-text-end" style="align-self: center;"><span style="white-space: nowrap;"><strong style="font-weight: bold;">{{strMlCurr}}</strong><span class="unit">ml</span></span></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="9"><ion-range [value]="mlCurr" [ticks]="false" [snaps]="true" [min]="mlMin" [max]="mlMax" [step]="mlStep" (ionInput)="onIonRange($event,'ionInput','ml',selectItem.ID)" (ionChange)="onIonRange($event,'ionChange','ml',selectItem.ID)"></ion-range></ion-col>
+            <ion-col size="3"><ion-item class="button-mini" (click)="initMl()"><ion-label>{{strMlInit}}</ion-label></ion-item></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="9" style="font-weight:bold" class="ion-text-start"><ion-item lines="none"><ion-icon name="water" slot="start" color="tertiary" style="margin-right: 1px; font-size: 1.6rem;"></ion-icon>内容量({{strCoef(selectItem.ID)}})</ion-item></ion-col>
+            <ion-col size="3" class="ion-text-end" style="align-self: center;"><span style="white-space: nowrap;"><strong style="font-weight: bold;">{{strDrinkContent}}</strong><span class="unit">ml</span></span></ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="9"><ion-range [value]="getCoef100(selectItem.ID)" [ticks]="false" [snaps]="true" [min]="10" [max]="100" step="5" (ionInput)="onIonRange($event,'ionInput','coef',selectItem.ID)" (ionChange)="onIonRange($event,'ionChange','coef',selectItem.ID)"></ion-range></ion-col>
+            <ion-col size="3"><ion-item class="button-mini" (click)="initCoef(selectItem)"><ion-label>{{selectItem['coef']*100}}%</ion-label></ion-item></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col size="8"></ion-col>
+            <ion-col size="4"><ion-button [style.--background]="colorAlcoholCurr.bgColor" [style.--color]="colorAlcoholCurr.textColor" class="alcohol-badge">{{strAlcoholCurr}}</ion-button></ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+      <ion-button (click)="modalConfirm(true,'orderConfirm')" expand="block">登録</ion-button>
+      @if (strTips && strTips.trim() !== ''){
+        <ion-item lines="none">
+          <app-freetext-input [value]="strTips" [isReadonly]="true"></app-freetext-input>
+        </ion-item>
+      }
+    }
+  </ion-content>
+</app-shared-modal>

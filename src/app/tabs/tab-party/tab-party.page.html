@@ -1,0 +1,164 @@
+<ion-tabs  (ionTabsDidChange)="clearTabFocus()">
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="shop" href="/tabs/shop">
+    @if (isShop){
+      <ion-icon aria-hidden="true" name="storefront"></ion-icon>
+      <ion-label>居酒屋</ion-label>
+    } @else {
+      <ion-icon aria-hidden="true" name="home"></ion-icon>
+      <ion-label>宅飲み</ion-label>
+    }
+    </ion-tab-button>
+
+    <ion-tab-button tab="order" href="/tabs/order">
+      <ion-icon aria-hidden="true" name="document-text"></ion-icon>
+      <ion-label>注文履歴</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="calendar" href="/tabs/calendar">
+      <ion-icon aria-hidden="true" name="calendar"></ion-icon>
+      <ion-label>飲酒記録</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="measure" href="/tabs/measure">
+      <ion-icon aria-hidden="true" name="beer"></ion-icon>
+      <ion-label>ジョッキ計測</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="info" href="/tabs/info">
+      <ion-icon aria-hidden="true" name="information-circle"></ion-icon>
+      <ion-label>Info</ion-label>
+    </ion-tab-button>
+      @if (!isProduction){<ion-item class="button-mini" (click)="modalOpen('releaseNote')"><ion-label>{{strVer}}</ion-label></ion-item>}
+  </ion-tab-bar>
+</ion-tabs>
+
+<app-shared-modal
+  [isOpen]="isOpenReleaseNote"
+  headerTitle="リリースノート"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalCancel()">
+  <ion-content class="scroll-enabled">
+  <ion-item class="title">バージョン</ion-item>
+  <ion-item lines="none">
+    version.{{version}}  build.{{build}}
+  </ion-item>
+  <ion-item class="title">今回の変更({{ buildTime }})</ion-item>
+  <ion-item lines="none">
+    <ol>
+      <li>全ドリンクで「重複なし」の切り替え表示対応</li>
+      <li>飲み会の一言メモ機能</li>
+    </ol>
+  </ion-item>
+  <ion-item class="title">制限事項</ion-item>
+  <ion-item lines="none">
+    <ol>
+      <li>マイメニュー追加、窓が上がるが追加はできない</li>
+    </ol>
+  </ion-item>
+  <ion-item class="title">検討中項目</ion-item>
+  <ion-item lines="none">
+    <ol>
+      <li>ジョッキ計測の結果をメニュー選択に反映する方法</li>
+      <li>マイメニュー追加での度数や容器サイズの登録方法</li>
+      <li>休肝日、断酒日の継続状況の表示、グラフ表示など</li>
+      <li>iCloud等への飲酒記録のバックアップ</li>
+      <li>複数ドリンクの一括編集</li>
+      <li>飲み物登録のTipsの文言の見直し</li>
+      <li>飲み会サマリーのスケジューラへの送信機能</li>
+      <li>飲み会サマリーのシェア機能</li>
+      <li>飲み物登録忘れの通知</li>
+    </ol>
+  </ion-item>
+  <ion-item class="title">変更履歴</ion-item>
+  <ion-item>
+    build.1
+    <ol>
+      <li>ドリンク詳細の編集中の左右操作でデータが壊れる不具合修正</li>
+      <li>iPhone16での表示最適化</li>
+    </ol>
+  </ion-item>
+  ver.0.3
+  <ion-item>
+    build.7
+    <ol>
+      <li>メニューデータの更新</li>
+      <li>登録済みドリンクの詳細ページの見た目改善</li>
+      <li>登録済みドリンクの詳細ページによるデータ編集</li>
+      <li>ソフトドリンクの登録対応</li>
+      <li>ライン越えまでの飲み物が何杯かを表示</li>
+      <li>「不足する水分量」の計算式の見直し</li>
+    </ol>
+  </ion-item>
+  <ion-item>
+    build.6
+    <ol>
+      <li>メニューデータの更新</li>
+      <li>「飲み会記録」のサマリーの昇順降順表示</li>
+      <li>最新月の月末アルコール総量の予測</li>
+      <li>ジョッキ計測の泡底の分解能を5％単位に変更</li>
+      <li>ジョッキ計測の泡底による内容量計測</li>
+    </ol>
+  </ion-item>
+  <ion-item>
+    build.5
+    <ol>
+      <li>ジョッキ計測のグラスの厚さのチューニング</li>
+      <li>グラフのライン越えまでのアルコール量を表示</li>
+      <li>アルコール分解の目安を表示</li>
+      <li>アルコール血中濃度の計算にヴィドマーク法を採用</li>
+      <li>１回の飲み会で登録できるアルコール量を制限</li>
+      <li>飲酒で抜ける水分量を表示</li>
+      <li>初回起動時に身体情報入力画面を出す</li>
+      <li>初期化（設定クリア）で登録データの削除しない（文言修正等）</li>
+    </ol>
+
+  </ion-item>
+  <ion-item>
+    build.4
+    <ol>
+      <li>飲み物登録時にTipsを表示</li>
+      <li>飲み物登録の時間間隔が近い時のグラフの目盛りの調整</li>
+      <li>ジョッキ計測のデザイン変更(ジョッキ計測でチュートリアルを目立たせる)</li>
+      <li>ジョッキ計測の精度改善</li>
+      <li>内部テスト版のタブバー表記</li>
+      <li>起動直後に「ジョッキ計測」を開けない→再現せず</li>
+      <li>ジョッキ計測で反応が遅い場合がある→再現せず</li>
+    </ol>
+  </ion-item>
+  <ion-item>
+    build.3
+    <ol>
+      <li>ダイアログの表示まわりで動きが悪い件の改善</li>
+      <li>飲み物サマリーの見た目改善</li>
+      <li>飲み会記録：月間サマリーの表示・見た目改善</li>
+      <li>メニューの更新</li>
+      <li>登録した飲み物時刻を変更した際に更新がされない不具合の修正</li>
+    </ol>
+  </ion-item>
+  <ion-item>
+    build.2
+    <ol>
+      <li>飲み物登録した時に飲み会記録が更新されない不具合修正</li>
+      <li>メニューの更新</li>
+    </ol>
+  </ion-item>
+  <ion-item>
+    build.1
+    <ol>
+      <li>登録時のアルコール度数、グラス容量の変更</li>
+      <li>アルコール量マークの背景を量によって色を変える</li>
+      <li>日付変更の不具合修正</li>
+      <li>同じ日に２回飲み会があった場合に月の飲酒日は１日とカウントする</li>
+      <li>飲み物登録時、消え残り不具合の修正</li>
+      <li>「おかわり」での表示位置を最下部へ移動</li>
+    </ol>
+  </ion-item>
+
+
+  <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>

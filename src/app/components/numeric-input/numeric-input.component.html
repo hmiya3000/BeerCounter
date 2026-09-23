@@ -1,0 +1,13 @@
+<ion-input 
+  type="text" 
+  [inputmode]="inputMode"
+  [clearInput]="true" 
+  enterkeyhint="done" 
+  [placeholder]="placeholder" 
+  [value]="value"
+  [readonly]="isReadonly"
+  [className]="customClass"
+  (keyup.enter)="$any($event.target).blur()" 
+  (ionInput)="handleInput($event)"   
+  (ionBlur)="handleBlur($event)">
+</ion-input>

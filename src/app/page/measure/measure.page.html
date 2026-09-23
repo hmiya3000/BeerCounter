@@ -1,0 +1,285 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>ジョッキ計測</ion-title>
+    <ion-buttons slot="end">
+      <ion-button aria-label="manual"  (click)="modalOpen('manual')" slot="end" fill="solid" color="primary">使い方</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="scroll-enabled">
+  <ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col class="ion-text-start">1.実際のジョッキの高さを測る</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="5"></ion-col>
+        <ion-col size="7"><ion-item class="inputbutton"  (click)="modalOpen('measure')"><ion-label>{{realHeight}} cm</ion-label><ion-button slot="end">定規</ion-button></ion-item></ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-item>
+  <ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col class="ion-text-start">2.ジョッキを撮影する</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="5"></ion-col>
+        <ion-col size="7">
+          <ion-item class="inputbutton" (click)="takePicture()"color="warning"><ion-label  style="font-size: 1.2rem; display: flex; align-items: center;"><ion-icon name="camera" slot="start"style="margin-right: 10px; font-size: 2rem;"></ion-icon>撮影</ion-label></ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <p class="instruction-text" style="font-size: 0.85rem; text-align: center;" >真正面から撮影すると精度があがります</p>
+      </ion-row>
+    </ion-grid>
+  </ion-item>
+  @if (imageSrc){
+    <ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col class="ion-text-start">3.赤い枠線の四隅をジョッキの形に合わせる</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+          <p class="instruction-text" style="font-size: 0.85rem; text-align: center;" >
+          <img src="assets/images/fittingZoom.png" alt="ジョッキのイラスト" style="width: auto; height: 80px; display: block; margin: 15px auto;">
+          (<span style="color: var(--ion-color-danger);font-weight: bold;">断面の四隅</span>に合わせます)
+          </p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <div>
+      <canvas #imageCanvas 
+        (touchstart)="onTouchStart($event)" 
+        (touchmove)="onTouchMove($event)">
+      </canvas>
+    </div>
+    <ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col class="ion-text-start">4.ガラスの厚みを合わせる</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-segment [value]="glassType" (ionChange)="glassType = $any($event).detail.value; calculateVolume()" mode="ios">
+              <ion-segment-button value="thin">
+                <ion-label style="font-weight: bold;">薄め (-{{strGlassCompThin}}%)</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="thick">
+                <ion-label style="font-weight: bold;">厚め (-{{strGlassCompThick}}%)</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <p class="instruction-text" style="font-size: 0.85rem; text-align: center;" >ジョッキは厚めなので内容量は少なめになります</p>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item>
+      <ion-card color="light" (click)="modalOpen('result')">
+        <ion-card-content class="ion-text-center">
+          <h2>ジョッキの容量</h2>
+          <h3>({{strGlassType}})</h3>
+          <div class="volume-display">
+            <ion-icon name="beer" style="color: #ffc107; font-size: 48px;"></ion-icon>          
+              @if( estimatedVolume !== null){
+                <span class="ml-text">{{ estimatedVolume }}</span> ml
+              } @else {
+                <span class="ml-text">---</span> ml
+              }          
+          </div>
+          <p style="font-size: 0.8rem; color: gray; margin-top: 8px;">
+            ※円錐台と仮定し、ガラスの厚み（
+            @if (glassType === 'thick') {
+              {{strGlassCompThick}}%
+            } @else {
+              {{strGlassCompThin}}%
+            }
+            ）を引いた値です。
+          </p>
+          <div>
+            @if (foamRatio !== null && beerRatio !== null) {
+              🍺 飲み物：泡 =  {{ beerRatio }} ： {{ foamRatio }}<br>
+            }
+          </div>
+            <h2>飲み物：{{estimatedLiquidVolume}} ml ({{strCoefDrinkMl}}%)</h2>
+        </ion-card-content>
+      </ion-card>
+    </ion-item>
+  }
+  <div class="android-scroll-spacer"></div>
+</ion-content>
+
+<app-shared-modal
+  [isOpen]="isOpenManual"
+  headerTitle="計測の仕方"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (onCancel)="modalConfirm(false,'manual')">
+  <ion-content class="scroll-enabled">
+    <ion-item class="title">使い方</ion-item>
+  <ion-item lines="none">
+    <ol>
+      <li>実際の<span style="color: var(--ion-color-danger);font-weight: bold;">ジョッキの高さ</span>を測る
+        <img src="assets/images/height.png" alt="ジョッキのイラスト" style="width: 150px; height: auto; display: block; margin: 15px auto;">
+      </li>
+      <li>ジョッキを撮影する</li>
+      <li><span style="color: var(--ion-color-danger);font-weight: bold;">赤い枠線</span>をジョッキの形に合わせる
+        <img src="assets/images/fitting.png" alt="ジョッキのイラスト" style="width: 150px; height: auto; display: block; margin: 15px auto;">
+        (撮影した写真の<span style="color: var(--ion-color-danger);font-weight: bold;">断面の四隅</span>に合わせる)
+        <img src="assets/images/fittingZoom.png" alt="ジョッキのイラスト" style="width: auto; height: 150px; display: block; margin: 15px auto;">
+      </li>
+      <li><span style="color: var(--ion-color-danger);font-weight: bold;">ガラスの厚み</span>が違う場合は直す<br>(ジョッキは厚めなので内容量は少なめになります)</li>
+    </ol>
+  </ion-item>
+  <div class="android-scroll-spacer"></div>
+  </ion-content>
+</app-shared-modal>
+
+<app-shared-modal
+  [isOpen]="isOpenResult"
+  headerTitle="計測結果"
+  [isScrollEnabled]="false"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [confirmButtonText]="''"
+  [cancelButtonText]="'閉じる'"
+  (ionModalDidPresent)="modalPresent('result')"
+  (onCancel)="modalConfirm(false,'result')">
+  <ion-content>
+    <div #fixArea data-name="fixArea" class="box" style="overscroll-behavior: none; touch-action: none;">
+      <ion-item>
+        <ion-grid>
+          <ion-row>
+            <ion-col>ジョッキの高さ</ion-col>
+            <ion-col>
+              <ion-label style="font-weight: bold;">{{realHeight}} cm</ion-label>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>ガラスの厚さ</ion-col>
+            <ion-col>
+              @if(glassType=="thin"){
+                <ion-label style="font-weight: bold;">薄め (-{{strGlassCompThin}}%)</ion-label>
+              } @else {
+                <ion-label style="font-weight: bold;">厚め (-{{strGlassCompThick}}%)</ion-label>
+              }
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <ion-card color="light" (click)="modalOpen('result')">
+          <ion-card-content class="ion-text-center">
+            <h3>ジョッキの容量</h3>
+            <h4>({{strGlassType}})</h4>
+            <div class="volume-display">
+              <ion-icon name="beer" style="color: #ffc107; font-size: 36px;"></ion-icon>          
+                <span class="ml-molal-text">{{ estimatedVolume }}</span> ml
+            </div>
+            <div>
+              @if (foamRatio !== null && beerRatio !== null) {
+              🍺 飲み物：泡 =  {{ beerRatio }} ： {{ foamRatio }}<br>
+              }
+            </div>
+              <h2>飲み物：{{estimatedLiquidVolume}} ml ({{strCoefDrinkMl}}%)</h2>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center; overscroll-behavior: none; touch-action: none;">
+      <canvas #modalCanvas></canvas>
+    </div>
+  </ion-content>
+</app-shared-modal>
+
+<ion-modal [isOpen]="isOpenMeasure" (didDismiss)="modalConfirm(false,'measure')" style="--height: 100%; --width: 100%; --border-radius: 0;">
+  <ng-template>
+    <ion-content [fullscreen]="true" [scrollX]="false" [scrollY]="false" style="--overflow: hidden; --padding-top: 0; --padding-bottom: 0;">
+    <!-- 画面全体の高さを100%使い切るためのレイアウトコンテナ（横並び） -->
+    <div class="ruler-modal-layout" style="display: flex; width: 100%; height: 100vh; max-height: 100vh; box-sizing: border-box; overflow: hidden;">
+      <div class="ruler-scroll-box-left" style="width: 75px; height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; border-right: 2px solid #222; background: #fff; box-sizing: border-box; position: relative; transform: scaleY(-1);">
+        <div class="real-ruler-track-left" [style.height.px]="260 * (modalPxPerCm / 10)" style="position: relative; width: 100%; box-sizing: border-box; transform: scaleY(-1);">
+          @for (mm of modalMmTicks; track mm) {
+            @let currentMmLeft = mm - 10;
+            <div style="position: absolute; right: 0; left: 0;" 
+                 [style.height.px]="modalPxPerCm / 10"
+                 [style.top.px]="(260 - mm) * (modalPxPerCm / 10)">
+              @if (currentMmLeft % 10 === 0) {
+                <div style="position: absolute; bottom: 0; display: flex; align-items: center; justify-content: flex-end; width: 100%; height: 0;">
+                  <span style="font-size: 11px; font-weight: bold; color: #000; margin-right: 8px;">{{ currentMmLeft / 10 }}</span>
+                  <hr style="width: 20px; height: 2px; background: #000; border: none; margin: 0;" />
+                </div>
+              } 
+              @else if (currentMmLeft % 5 === 0) {
+                <div style="position: absolute; bottom: 0; display: flex; justify-content: flex-end; width: 100%; height: 0;">
+                  <hr style="width: 14px; height: 1px; background: #666; border: none; margin: 0;" />
+                </div>
+              } 
+              @else {
+                <div style="position: absolute; bottom: 0; display: flex; justify-content: flex-end; width: 100%; height: 0;">
+                  <hr style="width: 8px; height: 1px; background: #ccc; border: none; margin: 0;" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <!-- 🎛 右側：絶対に動かない固定のスライダー・操作エリア（残りの画面幅をすべて使う） -->
+      <div class="controls-fixed-box" style="flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 15px; box-sizing: border-box; overflow: hidden; background: #f9f9fa;">
+        <ion-item class="title" lines="none" style="--background: transparent; font-weight: bold; color: #666;">ジョッキの高さ</ion-item>
+        <ion-item lines="none" style="--background: transparent;">
+          <div class="current-height-badge" style="width: 100%; display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: #333; font-size: 1.1rem;">
+            <strong style="display: inline-block; width: 110px; text-align: right; font-size: 2.2rem; color: var(--ion-color-danger); margin-right: 8px; font-family: 'Courier New', Courier, monospace; font-weight: bold; line-height: 1;">
+              {{ tempHeight | number:'1.1-1' }}
+            </strong>
+            <span>cm</span>
+          </div>
+        </ion-item>
+        <ion-item lines="none" style="--background: transparent;">
+          <div class="ruler-slider-container" style="width: 100%; display: flex; align-items: center;">
+            <ion-range [value]="tempHeight" [ticks]="false" [snaps]="true" [min]="4" [max]="20" step="0.5" (ionInput)="onIonRange($event,'ionInput','height')" (ionChange)="onIonRange($event,'ionChange','height')" style="width: 100%; padding: 0;"></ion-range>
+          </div>
+        </ion-item>
+        <ion-button (click)="modalCancel()" style="font-weight: bold; display: block; margin: 20px auto 0 auto; width: 80%;" size="large">
+          決定
+        </ion-button>
+      </div>
+      <div class="ruler-scroll-box-right" style="width: 75px; height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; border-left: 2px solid #222; background: #fff; box-sizing: border-box;">
+        <!-- 💡 上から下へ正方向に積み上げるため、通常の列（column）方向にし、ヘッダーに被らないよう余白を持たせます -->
+        <div class="real-ruler-track-right" style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; padding-top: 56px;">
+          @for (mm of modalMmTicks; track mm) {
+            <!-- 各目盛りマスの高さを指定（上から下へ順に配置されます） -->
+            <div [style.height.px]="modalPxPerCm / 10" style="position: relative; width: 100%; box-sizing: border-box; flex-shrink: 0;">
+              
+              <!-- 💡 1cm (10mm) ごとの「長い黒線」と「数字」（線は左側に飛び出させ、数字は右側に配置） -->
+              @if (mm % 10 === 0) {
+                <div style="position: absolute; top: 0; display: flex; align-items: center; justify-content: flex-start; width: 100%; height: 0;">
+                  <hr style="width: 20px; height: 2px; background: #000; border: none; margin: 0;" />
+                  <span style="font-size: 11px; font-weight: bold; color: #000; margin-left: 8px;">{{ mm / 10 }}</span>
+                </div>
+              } 
+              @else if (mm % 5 === 0) {
+                <div style="position: absolute; top: 0; display: flex; justify-content: flex-start; width: 100%; height: 0;">
+                  <hr style="width: 12px; height: 1px; background: #666; border: none; margin: 0;" />
+                </div>
+              } 
+              @else {
+                <div style="position: absolute; top: 0; display: flex; justify-content: flex-start; width: 100%; height: 0;">
+                  <hr style="width: 6px; height: 1px; background: #ccc; border: none; margin: 0;" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </ion-content>
+  </ng-template>
+</ion-modal>

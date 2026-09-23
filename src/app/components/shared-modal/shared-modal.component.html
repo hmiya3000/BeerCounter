@@ -1,0 +1,29 @@
+<ion-modal 
+  [isOpen]="isOpen" 
+  [backdropDismiss]="true"
+  [initialBreakpoint]="initialBreakpoint"
+  [breakpoints]="breakpoints"
+  [handle]="initialBreakpoint ? true : false"
+  (ionModalDidDismiss)="closeModal()"
+  (ionModalDidPresent)="onModalPresent()">
+  <ng-template>
+    <!-- 💡 モーダル内のヘッダー・コンテンツ・スワイプ・アニメーションをすべて共通コンポーネントに委譲 -->
+    <app-swipe-layout
+      [headerTitle]="headerTitle"
+      [isScrollEnabled]="isScrollEnabled"
+      [cancelButtonText]="cancelButtonText"
+      [confirmButtonText]="confirmButtonText"
+      [showConfirmButton]="showConfirmButton"
+      [isBackButton]="isBackButton"
+      [isForwardButton]="isForwardButton"
+      (onCancel)="closeModal()"
+      (onConfirm)="confirmModal()"
+      (headerClick)="headerClick.emit($event)"
+      (pageSwipe)="pageSwipe.emit($event)">
+      
+      <!-- 呼び出し側から渡されたモーダルの中身（HTML）がここに入る -->
+      <ng-content></ng-content>      
+      
+    </app-swipe-layout>
+  </ng-template>
+</ion-modal>

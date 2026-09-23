@@ -9,6 +9,13 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+@use "theme/variables";
+/**
+ * アプリ固有のカスタムコンポーネントスタイル
+ */
+@use './theme/components';
+
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
@@ -35,3 +42,627 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+:root {
+  /* iOSやWeb標準のセーフエリア値を、JavaScriptから読める変数にコピー */
+  --safe-area-top-px:     env(safe-area-inset-top);
+  --safe-area-bottom-px:  env(safe-area-inset-bottom);
+}
+
+/* ===================================================
+   ■ アプリ全体・基盤コンポーネントの設定
+=================================================== */
+ion-app {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  
+  // 動的ビューポート（キーボードを考慮した高さ）に対応
+  height: 100vh !important;
+  height: 100svh !important; 
+}
+//===========================================================================
+ion-content {
+  --background: var(--beetre-base-bg) !important;
+}
+ion-content.scroll-enabled {
+  --background: linear-gradient(to bottom, var(--beetre-base-bg) calc(100% - 50vh), var(--beetre-none-bg) calc(100% - 50vh)) !important;
+}
+.android-scroll-spacer {
+  display: block;
+  width: 100%;
+  /* ⭕ さっきまでion-contentに設定していた高さを、ここにそのまま引っ越します */
+  height: calc(15vh + var(--ion-safe-area-bottom, 0px)); 
+  pointer-events: auto; /* タッチイベントを正常にWeb側に維持する */
+}
+//===========================================================================
+ion-tab-bar {
+  padding-bottom:       var(--tabBarPaddingBottom, 0px)  !important;
+  --padding-bottom:     var(--tabBarPaddingBottom, 0px) !important;
+  margin-bottom: 0px !important;
+  --background:         var(--ion-tab-bar-background);
+  border-top: 1px solid var(--beetre-border-light) !important;   
+}
+//===========================================================================
+ion-segment,
+ion-footer ion-segment {
+  /* フッター特有の背景ブレンドを打ち消して、アプリ共通の入力背景色で塗りつぶします */
+  --background:     var(--ion-tab-bar-background) !important;
+  background-color: var(--ion-tab-bar-background) !important;
+  
+  border-radius: 8px !important;
+  border: 1px solid var(--beetre-border-light) !important;
+  padding: 2px !important;
+}
+ion-segment-button,
+ion-footer ion-segment-button {
+  /* 選択されていない状態の文字色（ライト：黒、ダーク：白） */
+  --color: var(--beetre-font-normal) !important;
+  
+  /* 💡 選択されてアクティブになった時のツマミ背景色（お好みで。通常は自動で白/グレーになります） */
+  --background-checked: var(--beetre-input-bg) !important;
+}
+//===========================================================================
+.chart-container {
+  width: 100%;
+  /* 隙間の部分を、現在のベース背景色（白／濃いグレー）で100%不透明に塗りつぶします */
+  background-color: var(--beetre-base-bg) !important; 
+  padding: 5px; /* ⭕️ marginの代わりに、内側のパディングで「5pxの隙間」を綺麗に表現します */
+  box-sizing: border-box;
+}
+.chart-wrapper {
+  position: relative;
+  width: 100% !important;
+  height: 100% !important;
+  border: 1px solid var(--beetre-border-light);      
+  background-color: var(--beetre-input-bg);
+  padding: 4px;                   
+  cursor: pointer;   
+}
+//===========================================================================
+.custom-status-bar-header {
+  /* iOSのステータスバー（ノッチ）の高さ分、上部にだけぴったり隙間をあける */
+  padding-top:      var(--ion-safe-area-top, env(safe-area-inset-top)) !important;
+  background-color: var(--beetre-title-bg) !important; 
+  /* 中の文字（マイアプリの見出し）の見た目調整 */
+  color:            var(--beetre-font-normal);
+  font-size:        5px;
+  font-weight:      bold;
+  text-align:       center;
+  padding-bottom:   8px; /* 文字の下側にも少し余白をあける */
+}
+//===========================================================================
+ion-toolbar.title {
+  --background: var(--beetre-header-bg);
+  --color:      var(--beetre-font-normal);
+}
+ion-button{
+  font-weight:      bold;
+  font-size:        1.0em;
+  height:           1.8em;
+}
+  ion-button.title-action-btn {
+    // 幅を「文字数（決定/変更）」に左右されない絶対値に固定
+    width: 64px !important; 
+    --width: 64px !important;
+
+    // 高さも切り替えでガタつかないよう固定
+    height: 32px !important;
+    --height: 32px !important;
+    
+    // ボタン自体の余計な上下マージンをリセット
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+//===========================================================================
+ion-item.titleH {
+  --min-height: 3.6em !important;
+  height:       3.6em !important;
+  display:      flex !important;
+  align-items:  center !important;
+  app-freetext-input,
+  ion-label {
+    margin-top:     0 !important;
+    margin-bottom:  0 !important;
+    height:         100% !important;
+    display:        flex !important;
+    align-items:    center !important;
+  }  
+}
+
+ion-item.title,
+ion-item.input,
+ion-item.button,
+ion-item.inputbutton,
+ion-item.inputreadonly {
+  --padding-start:  0;
+  --padding-end:    0; 
+  --padding-top:    0;
+}
+ion-item.button,
+ion-item.inputbutton,
+ion-item.inputreadonly {
+  --border-radius:      8px !important;
+  overflow:             hidden !important; 
+  margin:               0px 0px;
+  width:                100% !important;
+  text-align:           center !important;
+  --lines:              none !important;
+  --inner-border-width: 0 !important;
+
+  /* 💡 ライトモード時の枠線（ダークモード時は下部で自動反転） */
+  &::part(native) {
+    border: 1px solid #dcdcdc !important; 
+  }
+  ion-label {
+    display:          flex;
+    justify-content:  center;
+    align-items:      center;
+    text-align:       center;
+    width:            100% !important;
+    margin:           0 !important; 
+  }
+}
+ion-item              { --background: var(--beetre-base-bg);    --color: var(--beetre-font-normal); }
+ion-item.title        { --background: var(--beetre-title-bg);   --color: var(--beetre-font-normal); }
+ion-item.titleH       { --background: var(--beetre-title-bg);   --color: var(--beetre-font-normal); }
+ion-item.input,
+ion-item.inputbutton  { --background: var(--beetre-input-bg);   --color: var(--beetre-font-normal); } /* 純白 */
+ion-item.inputreadonly{ --background: var(--beetre-base-bg);    --color: var(--beetre-font-read); } /* アイボリー */
+ion-item.button, 
+ion-item.detail       { --background: var(--beetre-button-bg);  --color: var(--beetre-font-normal); }
+ion-item.titleH {
+  --inner-padding-top:    8px;
+  --inner-padding-bottom: 8px;
+  --inner-padding-start:  8px;
+  --inner-padding-end:    8px;
+}
+ion-item.input {
+  --padding-horizontal:   16px;
+  --inner-padding-top:    16px;
+  --inner-padding-start:  16px;
+  --inner-padding-end:    16px;
+  --inner-padding-bottom: 16px;
+}
+ion-item.button, ion-item.inputbutton, ion-item.inputreadonly {
+  &::part(native) { border-color: var(--beetre-border-light) !important; }
+}
+//===========================================================================
+ion-item.button-mini {
+  --background: var(--beetre-button-bg);
+  --color: var(--beetre-font-normal);
+  font-weight: 200;
+  text-align: center;
+  --border-style: solid;
+  --border-width: 1px;
+  --border-color: var(--beetre-font-normal);
+  border-radius: 4px;
+  --min-height: 36px;
+  margin: 4px 0;
+  --inner-border-width: 0;
+  --min-height: 26px;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+  ion-label {
+    margin: 0;
+    line-height: 1; 
+    font-size: 12px !important; 
+    display: inline-block;
+    transform-origin: center center; 
+    width: 100%;
+  }
+}
+//===========================================================================
+ion-input {
+  --background:     var(--beetre-input-bg)!important;
+  --border-color:   var(--beetre-border-light)  !important;
+  border: 1px solid var(--beetre-border-light) !important; 
+
+  --border-radius: 8px;
+  border-radius: 8px;
+  opacity: 1 !important;
+  --border-style: solid !important;
+  --border-width: 1px !important;
+  
+  --padding-start: 0px;
+  --padding-top: 0px;
+  margin: 0px 0px; 
+}
+//===========================================================================
+ion-grid {
+  background-color: var(--beetre-base-bg) !important;
+}
+//===========================================================================
+ion-row {
+  display: flex;
+  align-items: center;
+  align-items: stretch;
+}
+//===========================================================================
+ion-col {
+  text-align: center;
+  height: auto; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--beetre-base-bg);
+}
+/* 枠線の基本スタイルを共通化 */
+ion-col.title, 
+ion-col.tableR, 
+ion-col.tableL, 
+ion-col.tableC {
+  border: solid 1px;
+  display: flex;
+  align-items: center;
+  background-color: var(--beetre-input-bg);
+  border-color: var(--beetre-border-table);
+}
+ion-col.param { 
+  background-color: var(--beetre-param-bg); 
+  border-color: var(--beetre-border-param); 
+}
+ion-col.title { 
+  background-color: var(--beetre-title-bg); 
+}
+ion-col.values { 
+  background-color: var(--beetre-input-bg); 
+}
+
+/* 右揃えが必要なものだけ個別上書き */
+ion-col.tableR {
+  flex-direction: row;       // 💡 文字を横並びモードにします
+  justify-content: flex-end; // 🎯 左右方向の「右端（お尻）」にバシッと寄せます！
+  padding-right: 8px;        // 枠線にギチギチに張り付くのを防ぐ美しい余白
+}
+ion-col.tableC {
+  flex-direction: row;
+  justify-content: center; 
+}
+ion-col.tableL {
+  flex-direction: row;
+  justify-content: flex-start; // 🎯 左右方向の「左端（頭）」に寄せます
+  padding-left: 8px;
+}
+//===========================================================================
+ion-textarea {
+  --padding-start:      0;
+  --padding-top:        16px;
+  --padding-bottom:     16px;
+  --padding-horizontal: 16px;
+  --inner-padding-top:  0;
+}
+ion-textarea.title,
+ion-textarea.list {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  font-size:    clamp(14px, 4vw, 18px);
+  --font-size:  clamp(14px, 4vw, 18px);
+}
+ion-textarea.title {
+  --background: transparent !important;
+}
+ion-textarea.input {
+  --padding-horizontal: 0; /* パディングを横だけリセット */
+}
+ion-textarea.tips {
+  /* パディングの上書き */
+  --padding-start:  10px;
+  --padding-end:    10px;
+  --padding-top:    10px;
+  --padding-bottom: 10px;
+  --padding-horizontal: 5px;  
+  /* 独自スタイル */
+  font-size: inherit !important;
+  width: calc(100% - 10px) !important;
+  margin: 5px;
+  --border-width: 1px !important;
+  border: solid 1px;
+  
+  &::part(textarea) {
+    font-size: inherit !important;
+  }
+}
+ion-textarea.list,
+ion-textarea.input,
+ion-textarea.tips {
+  --background: var(--beetre-input-bg);
+}
+ion-textarea.tips {
+  border-color: var(--beetre-border-table);
+}
+//===========================================================================
+.smooth-datetime-popover {
+  --width: 100vw !important;
+  --max-width: 100vw !important;
+  
+  &::part(content) {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+  }
+
+  /* カレンダー本体も画面いっぱいに広げます */
+  ion-datetime {
+    width: 100vw !important;
+    max-width: 100vw !important; 
+    --padding-start: 0px !important;
+    --padding-end: 0px !important;
+  }
+}
+ion-datetime.full-width-datetime {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  margin-right: calc(-50vw + 50%) !important;
+  --padding-start: 0px !important;
+  --padding-end: 0px !important;
+  border-radius: 0 !important;
+  &::part(calendar-body),
+  &::part(calendar-header) {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    padding-left: 12px !important; /* 曜日や数字が画面のフチにパツパツに潰れないよう心地よい余白をキープ */
+    padding-right: 12px !important;
+  }
+}
+//===========================================================================
+.unit {
+  font-size: 80% !important; /* 他の強力なスタイルに負けないように !important を付与 */
+  margin-left: 2px;
+}
+//===========================================================================
+ion-alert {
+  --background:       var(--beetre-base-bg)     !important;
+  --color:            var(--beetre-font-normal) !important;
+  &.top-alert {
+    align-items: flex-start !important; 
+    .alert-wrapper {
+      position: absolute !important;
+      top: 25% !important; 
+      transform: none !important;
+    }
+  }
+  .alert-input {
+    background-color: var(--beetre-input-bg) !important;
+    color:            var(--beetre-font-normal) !important;
+    border: 1px solid var(--beetre-border-light) !important;
+    border-radius: 4px !important;
+    padding: 8px !important;
+  }
+  .alert-input::placeholder {
+    color:            var(--beetre-font-read)!important; /* ダークモードでも見えやすい標準グレー */
+  }
+}
+//===========================================================================
+ion-picker {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ion-grid {
+    width: 100% !important;
+  }
+  ion-row {
+    width:            100%;
+    display:          flex !important;
+    flex-wrap:        nowrap !important;       // 絶対に折り返さない
+    justify-content:  center !important; // 2つのドラムを画面中央に集める
+    align-items:      center !important;
+  }
+  ion-col {
+    height:   100% !important;
+    padding:  0 2px !important;        // 「年」と「月」の間の隙間
+    display:  block !important;
+
+    // 左側のドラム（1番目の列：年）を右寄せ
+    &:first-of-type {
+      ion-picker-column-option {
+        display:          flex !important;
+        justify-content:  flex-end !important;
+        padding-right:    28px !important; // 中央境界線からの美しい余白クッション
+      }
+    }
+    // 右側のドラム（2番目の列：ヶ月）を左寄せ
+    &:last-of-type {
+      ion-picker-column-option {
+        display:          flex !important;
+        justify-content:  flex-start !important;
+        padding-left:     28px !important; // 中央境界線からの美しい余白クッション
+      }
+    }
+  }
+  // ドラム本体の共通設定（スワイプ領域をサイズいっぱいに100%確保）
+  ion-picker-column {
+    width:              100% !important; 
+    &::part(column) {
+      justify-content:  unset !important;
+    }
+  }
+  // Ionic8用の強制100%リセット
+  ion-picker-column-option {
+    width: 100% !important;
+    // シャドウDOM内部のボタン自体の横幅を文字サイズ（fit-content）に縮めることで、
+    // 外側の flex-end / flex-start の引力に従わせます。
+    &::part(button), .picker-column-option-button {
+      width:      fit-content !important;
+      min-width:  fit-content !important;
+      max-width:  100% !important;
+    }
+  }
+}
+// =================================================================
+// 🏢 従来のモーダル専用のガワの設定
+// =================================================================
+ion-modal {
+  ion-header,
+  ion-toolbar {
+    --background:             var(--beetre-header-bg) !important;
+    background-color:         var(--beetre-header-bg) !important;    
+    --color:                  var(--ion-text-color) !important;
+    color:                    var(--ion-text-color) !important;
+    border-bottom: 1px solid  var(--beetre-border-light) !important;    
+  }
+}
+ion-modal#graph-modal.ion-metadata-landscape-safe {
+  --max-width:            calc(100% - 48px - 48px) !important;
+  --backdrop-opacity:     0.4 !important;
+  --backdrop-background:  var(--beetre-base-bg) !important;
+}
+ion-modal.global-picker-modal {
+  --can-swipe:  false;
+  max-width:    100% !important;
+  --width:      calc(var(--pickerWidth, 100) * 1%) !important;
+  --height:     var(--pickerHeight, 256px) !important;
+  ion-content {
+    --overflow:         hidden;
+    --padding-top:      0;
+    --padding-bottom:   0 !important;
+    --background:       var( --ion-tab-bar-background) !important;
+  }
+  &::part(column) {
+    text-align: center !important; 
+  }
+  &::part(content) {
+    transform: translateY(0px) !important;
+  }
+  @media (min-width: 768px) {
+    margin:           0 !important;
+    border-radius:    12px !important;
+    --border-radius:  12px !important;
+    transform:        translate(0%, 0%) !important;
+
+    &::part(content) {
+      top:        0 !important;
+      bottom:     0 !important;
+      left:       0 !important;
+      right:      0 !important;
+      margin:     auto !important;
+      transform:  translateY(0px) !important;
+    }
+  }
+}
+//===========================================================================
+.allow-copy {
+  // 1. 通常の要素用の指定
+  &, 
+  // 2. ion-textarea の内部要素（Shadow DOM）を貫通させる指定
+  &::part(textarea),
+  // 3. ion-input も共通で使う場合はこれも入れておくと安全です
+  &::part(native) {
+    -webkit-user-select:  text !important;
+    -moz-user-select:     text !important;
+    -ms-user-select:      text !important;
+    user-select:          text !important;
+  }
+}
+//===========================================================================
+.global-textlist-title {
+  @include variables.textlist-common-style; 
+  margin:       5px; // 要素の「外側」に空ける隙間
+  padding:      12px 16px 4px 16px;
+  font-family:  monospace !important;
+  font-size:    13px !important;
+  font-variant-numeric: tabular-nums !important; /* 数字の幅を均一に固定 */  
+}
+.global-textlist-wrapper {
+  display:    block !important;
+  box-sizing: border-box !important;
+  overflow:   hidden !important; 
+}
+.global-textlist-contents {
+  /* ⬇️ ミックスインの前に「variables.」を付与します */
+  @include variables.textlist-common-style;    
+  @include variables.scrollable-y-contents;    
+  background-color: var(--beetre-input-bg)!important;
+  color:            var(--beetre-font-normal) !important;
+  padding: 12px 16px 30px 16px !important; 
+  box-sizing: border-box !important;
+
+  // 🌟【一本化の追記】：数字の列をピタッと揃える等幅フォントと、文字サイズをカチッと固定
+  font-family:  monospace !important; 
+  font-size:    13px !important;        
+  margin:       0 !important;              /* preタグ特有の不要な上下余白をリセット */
+
+  // 🌟【一本化の追記】：コピペ解放（.allow-copy と同じ命令をここに完全統合！）
+  -webkit-user-select:  text !important; 
+  -moz-user-select:     text !important;
+  -ms-user-select:      text !important;
+  user-select:          text !important;         
+}
+
+//===========================================================================
+
+/* ===================================================
+   ■ 長文テキスト用
+=================================================== */
+span.textarea-wrapper {
+  font-size: 80% !important;
+  width: 100% !important;
+  display: block !important; 
+}
+/* ===================================================
+   ■ 横画面（Landscape）時のセーフエリア最適化
+=================================================== */
+@media (orientation: landscape) {
+
+  ion-modal,
+  app-shared-modal ion-modal {
+    --width: calc(100vw - 96px) !important;
+    --max-width: calc(100vw - 96px) !important;
+    --height: 100vh !important;
+    margin: 0 auto !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  app-shared-modal ion-modal::part(content) {
+    width:      calc(100vw - 96px) !important;
+    max-width:  calc(100vw - 96px) !important;
+    left:       48px !important; 
+    right:      48px !important;
+    margin:     0 auto !important;
+    border-radius: 12px 12px 0 0 !important;
+  }
+  ion-modal.global-picker-modal {
+    --width: calc(var(--pickerWidth, 100) * 1%) !important; /* 50%等の元のサイズを維持 */
+    --max-width:  100% !important;
+    margin-left:  var(--ion-safe-area-left, 48px) !important;
+    margin-right: var(--ion-safe-area-right, 48px) !important;
+    &::part(content) {
+      width:      var(--width) !important;
+      max-width:  100% !important;
+      left:       auto !important;
+      right:      auto !important;
+    }
+    ion-header,
+    ion-toolbar {
+      padding-left:   var(--ion-safe-area-left, 48px) !important;
+      padding-right:  var(--ion-safe-area-right, 48px) !important;
+    }
+  }
+  ion-content,
+  ion-modal ion-content {
+    --padding-start: var(--ion-safe-area-left, 48px) !important;
+    --padding-end:   var(--ion-safe-area-right, 48px) !important;
+  }
+
+  /* 2. 最下部タブバー */
+  ion-tab-bar {
+    --padding-start:  var(--ion-safe-area-left, 48px) !important;
+    --padding-end:    var(--ion-safe-area-right, 48px) !important;
+    padding-left:     var(--ion-safe-area-left, 48px) !important;
+    padding-right:    var(--ion-safe-area-right, 48px) !important;
+  }
+
+  /* 3. カスタムステータスバーヘッダー */
+  .custom-status-bar-header {
+    padding-left:     var(--ion-safe-area-left, 48px) !important;
+    padding-right:    var(--ion-safe-area-right, 48px) !important;
+    --padding-start:  var(--ion-safe-area-left, 48px) !important;
+    --padding-end:    var(--ion-safe-area-right, 48px) !important;
+  }
+}

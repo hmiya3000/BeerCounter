@@ -1,0 +1,21 @@
+<div class="freetext-container no-swipe swiper-no-swiping">  
+  <ion-textarea 
+    class="swiper-no-swiping freetext-textarea-style"
+    (touchstart)="$event.stopPropagation()"
+    (touchmove)="$event.stopPropagation()"    
+    [autoGrow]="true" 
+    [rows]="rows"
+    enterkeyhint="done"
+    [placeholder]="placeholder"
+    [value]="value"
+    [readonly]="isReadonly"
+    (keyup.enter)="$any($event.target).blur()" 
+    (ionInput)="handleInput($event)"   
+    (ionBlur)="handleBlur($event)">
+  </ion-textarea>
+  @if (value && value.length > 0 && !isReadonly) {
+    <ion-button class="clear-btn" fill="clear" slot="icon-only" (click)="clearText($event)">
+      <ion-icon name="close-circle"></ion-icon>
+    </ion-button>
+  }  
+</div>

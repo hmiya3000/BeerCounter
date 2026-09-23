@@ -1,0 +1,87 @@
+@if (debugSvc.isDevModeGroup()){
+  <ion-item lines="none">
+    <div style="height: 100px;"></div>
+  </ion-item>
+  <div [class.reboot-alert-bg]="debugSvc.isNeedReboot || debugSvc.isMustReboot">
+    <ion-grid>
+      <ion-row >
+        <ion-col class="title">アプリ情報</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.selectMode()"    detail="false"><ion-label>{{modeName}}</ion-label></ion-item></ion-col>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.changeDevMode()" detail="false"><ion-label>{{debugSvc.getStrDevMode()}}</ion-label></ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-label></ion-label></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-label>IDFV:<div class="allow-copy">{{debugSvc.idfv}}</div></ion-label></ion-col>
+      </ion-row>
+      <ion-row >
+        <ion-col class="title">バナー広告</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>現在 TESTMODE</ion-col>
+        <ion-col><ion-label>{{debugSvc.adTestModeCur()}}</ion-label></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>{{debugSvc.adIdBannerCur()}}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>次回 TESTMODE</ion-col>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.changeAdTestModeOnDev()" detail="false"><ion-label>{{debugSvc.adTestModeNext()}}</ion-label></ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>{{debugSvc.adIdBannerNext()}}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.loadAdBanner()"  detail="false"><ion-label>バナー出す</ion-label></ion-item></ion-col>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.deleteAdBanner()"detail="false"><ion-label>バナー消す</ion-label></ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="title">リワード広告</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.grantAdRewardDebug()" [disabled]="hasAdReward"  detail="false"><ion-label>{{strExpireDate}}</ion-label></ion-item></ion-col>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.revokeAdRewardDebug()"[disabled]="!hasAdReward" detail="false"><ion-label>報酬没収</ion-label></ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>{{debugSvc.adIdRewardCur()}}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="title">Dropbox</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.clearDropboxToken()" [disabled]="!hasTokenDropbox" detail="false"><ion-label>{{hasTokenDropbox ? 'トークン削除' : '削除済'}} </ion-label></ion-item></ion-col>
+        <ion-col></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="Nav.to(router, 'dropbox')" detail="false"><ion-label>Dropboxページへ</ion-label></ion-item></ion-col>
+        <ion-col></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="title">サルベージ(iOS限定)</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.permissonSalvage()" detail="false"><ion-label>{{debugSvc.strSalvagedNext()}}</ion-label></ion-item></ion-col>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.execSalvageForce()" detail="false" [disabled]="!debugSvc.isExistSalvageData()"><ion-label>サルベージ実行</ion-label></ion-item></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><pre class="global-textlist-contents">{{debugSvc.salvage_raw_plist}}</pre></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="title">初期化</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col><ion-item class="button" button="true" (click)="debugSvc.allClearDebug()" detail="false"><ion-label>完全クリア</ion-label></ion-item></ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+} @else if (debugSvc.adTestModeCur()) {
+    <ion-grid>
+      <ion-row>
+        <ion-col>広告 TESTMODE</ion-col>
+        <ion-col><ion-label>{{debugSvc.adTestModeCur()}}</ion-label></ion-col>
+      </ion-row>      
+    </ion-grid>
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ビア＋＋</string>
+    <string name="title_activity_main">ビア＋＋</string>
+    <string name="package_name">com.beetre.BeerCounter</string>
+    <string name="custom_url_scheme">com.beetre.BeerCounter</string>
+</resources>

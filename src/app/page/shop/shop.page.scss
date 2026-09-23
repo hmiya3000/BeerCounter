@@ -1,0 +1,36 @@
+ion-split-pane {
+  margin-top: calc(var(--ion-safe-area-top, 0px) + 56px);
+  height: calc(100% - (var(--ion-safe-area-top, 0px) + 56px));
+      
+  // 左側エリアの最大幅と最小幅を同じ値（例: 180px）にして固定する
+  --side-min-width: 120px;
+  --side-max-width: 120px;
+
+  // もしパーセンテージで指定したい場合はこちら（画面全体の15%にする場合）
+//  --side-min-width: 25%;
+//  --side-max-width: 25%;
+}
+#main-content {
+  height: 100%;
+
+  ion-content {
+    height: 100%;
+  }
+}
+ion-menu {
+  height: 100%;
+
+  ion-content {
+    height: 100%;
+  }
+}
+.dense-card {
+  // カード外側の余白を狭くする（上下に4px、左右は0）
+  margin: 4px 0; 
+  
+  // もしカードの内側の余白（文字とカードの枠線の間）も少し狭くしたい場合は以下も追加
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 6px;
+  --padding-bottom: 6px;
+}

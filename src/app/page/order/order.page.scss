@@ -1,0 +1,14 @@
+ion-modal.alert-like-modal {
+  --width: 85%;
+  --max-width: 320px;
+  --height: auto;
+  --border-radius: 16px;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  align-items: center; /* 画面中央に配置 */
+}
+
+.modal-wrapper {
+  padding: 20px;
+  text-align: center;
+  background: var(--ion-background-color, #fff);
+}

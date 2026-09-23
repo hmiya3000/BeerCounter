@@ -1,0 +1,25 @@
+.alcohol-badge {
+  display: inline-block !important;
+  height: 2.0rem !important;
+  min-height: 0 !important;
+  width: 80px !important;
+  margin: 6px !important;
+  font-size: 1.1rem !important;
+  pointer-events: none;
+
+  /* 👇 ここに !important を追加して、デフォルトの丸みを強制上書きします */
+  --border-radius: 6px !important; 
+  --padding-top: 0;
+  --padding-bottom: 0;
+
+  &::part(native) {
+    height: 2.0rem !important;
+    min-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 2.0rem !important;
+    
+    /* 👇 念のためShadow DOMの内部パーツにも角丸を強制適用します */
+    border-radius: 6px !important; 
+  }
+}

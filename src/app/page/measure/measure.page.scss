@@ -1,0 +1,45 @@
+.canvas-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f4f5f8;
+  border-radius: 8px;
+  overflow: hidden;
+  padding-bottom: 10px;
+
+  canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.instruction-text {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin-top: 10px;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.volume-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+
+  .ml-text {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 10px;
+    color: var(--ion-color-dark);
+  }
+  .ml-molal-text {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 10px;
+    color: var(--ion-color-dark);
+  }
+}

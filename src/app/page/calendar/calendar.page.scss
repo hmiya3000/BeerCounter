@@ -1,0 +1,112 @@
+/* お酒の簡易リスト */
+.drinks-list {
+//  background: rgba(255, 255, 255, 0.6);
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  .drink-item-row {
+    display: flex;
+    justify-content: space-between;
+//    font-size: 13px;
+    color: #444;
+    padding: 3px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.05);
+    &:last-child { border-bottom: none; }
+    .drink-name { font-weight: 500; }
+    .drink-count { font-weight: bold; color: #333; }
+  }
+}
+
+.pure-share-card {
+  position: absolute;
+  left: -9999px; /* ユーザーの画面からは完全に見えなくする */
+  top: 0;
+  width: 500px;
+  height: 500px; /* 500x500の正方形に完全固定 */
+  background: linear-gradient(135deg, #fffdf0 0%, #fff9c4 100%);
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #fbc02d;
+  padding-bottom: 8px;
+  h2 { margin: 0; font-size: 20px; color: #f57f17; font-weight: bold; }
+  .date { font-size: 14px; color: #666; font-weight: 500; }
+}
+
+/* 2枚の数値ボックス（横並び） */
+.card-stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+  .stat-box {
+    width: 48%;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .label { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+    .value { font-size: 24px; font-weight: bold; 
+      small { font-size: 14px; margin-left: 2px; }
+    }
+  }
+}
+
+/* お酒の簡易リスト */
+.card-drinks-list {
+  background: rgba(255, 255, 255, 0.6);
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  .drink-item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #444;
+    padding: 3px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.05);
+    &:last-child { border-bottom: none; }
+    .drink-name { font-weight: 500; }
+    .drink-count { font-weight: bold; color: #333; }
+  }
+}
+
+/* グラフエリア */
+.card-graph-zone {
+  flex-grow: 1;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 12px;
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .no-graph-msg { font-size: 12px; color: #999; }
+}
+
+/* 血中濃度ステータスバー */
+.card-status-bar {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  span { font-weight: 500; }
+}
