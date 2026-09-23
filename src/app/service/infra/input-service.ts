@@ -1,5 +1,5 @@
 import { Injectable,ChangeDetectorRef } from '@angular/core';
-import { TAX_COMPANY_SETTINGS, TAX_PERSONAL_SETTINGS } from '../config/tax-constants';
+import { TAX_COMPANY_SETTINGS, TAX_PERSONAL_SETTINGS } from 'src/app/config/tax-constants';
 
 @Injectable({
   providedIn: 'root',

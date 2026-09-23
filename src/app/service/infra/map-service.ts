@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { CapacitorHttp } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
-import { DEF } from '../config/default-constants';
-import { GEO_CONFIG } from '../config/device-constants';
 import { GoogleMap } from '@capacitor/google-maps';
 import { Subject } from 'rxjs';
-
+//---
+import { DEF } from 'src/app/config/default-constants';
+import { GEO_CONFIG } from 'src/app/config/device-constants';
+//---
 @Injectable({
   providedIn: 'root',
 })

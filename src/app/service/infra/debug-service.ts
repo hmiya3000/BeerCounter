@@ -3,16 +3,19 @@ import { AlertInput } from '@ionic/angular';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device'; 
 import { App } from '@capacitor/app';
-import { DEVICE_CONFIG } from '../config/device-constants';
+import { Router } from '@angular/router';
+//---
+import { environment } from 'src/environments/environment';
+import { APP_CONFIG } from 'src/app/config/app.constants';
+import { DEVICE_CONFIG } from 'src/app/config/device-constants';
+//---
 import { AlertService } from './alert-service';
-import { AppmodeService } from './features/appmode-service';
 import { SalvageService } from './salvage-service';
 import { WindowService } from './window-service';
-import { Router } from '@angular/router';
-import { FeatureService } from './features/feature-service';
-import { APP_CONFIG } from '../config/app.constants';
-import { environment } from '../../../src/environments/environment';
-
+//---
+import { AppmodeService } from '../features/appmode-service';
+import { FeatureService } from '../features/feature-service';
+//---
 @Injectable({
   providedIn: 'root',
 })

@@ -2,30 +2,33 @@ import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild  } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonItem, IonList, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonGrid, IonRow, IonCol, IonButton, IonDatetime, IonLabel, IonCard, IonLoading, IonRange } from '@ionic/angular/standalone';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { addIcons } from 'ionicons';
 import { square, timeOutline, trash, calendarOutline, calendarNumberOutline, documentTextOutline, beer,arrowDownOutline,arrowUpOutline, shareSocialOutline, wine, water } from 'ionicons/icons';
-import { APP_CONFIG } from 'src/app/config/app.constants';
-import { Drink } from 'src/app/class/drink';
-import { IDrink } from 'src/app/interface/drink';
-import { Str, Util } from 'src/app/utils/util';
-import { DateService } from 'src/app/service/date-service';
-import { DrinkService, IDisplayDrink, ITipsBloodAlcohol} from 'src/app/service/features/drink-service';
-import { AlertService } from 'src/app/service/alert-service';
-import { WindowService } from 'src/app/service/window-service';
-import { ChartService } from 'src/app/service/chart-service';
-import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
-import { InlineDatetimeComponent } from 'src/app/components/inline-datetime/inline-datetime.component';
-import { ChartComponent } from 'src/app/components/chart/chart.component';
 import html2canvas from 'html2canvas';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
-import { InputService } from 'src/app/service/input-service';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
+import { Str, Util } from 'src/app/utils/util';
+import { AlertService } from 'src/app/service/infra/alert-service';
+import { ChartService } from 'src/app/service/infra/chart-service';
+import { DateService } from 'src/app/service/infra/date-service';
+import { InputService } from 'src/app/service/infra/input-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
+import { IDrink } from 'src/app/interface/drink';
+import { Drink } from 'src/app/class/drink';
 import { IDisplayParty, ISummaryDisplayData, PartyService, SummaryDisplayData } from 'src/app/service/features/party-service';
-import { MenuService } from 'src/app/service/features/menu-service';
-import { HealthService } from 'src/app/service/features/health-service';
 import { DiaryService } from 'src/app/service/features/diary-service';
+import { DrinkService, IDisplayDrink, ITipsBloodAlcohol} from 'src/app/service/features/drink-service';
+import { HealthService } from 'src/app/service/features/health-service';
+import { MenuService } from 'src/app/service/features/menu-service';
+//---
+import { ChartComponent } from 'src/app/components/chart/chart.component';
+import { InlineDatetimeComponent } from 'src/app/components/inline-datetime/inline-datetime.component';
 import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
-
+import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
+//---
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.page.html',

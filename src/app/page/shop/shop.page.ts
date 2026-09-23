@@ -2,20 +2,23 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonRow, IonCol, IonCard, IonGrid, IonButton, IonButtons, IonSpinner, IonItem, IonSplitPane, IonMenu, IonList, IonLabel, IonRange, IonIcon } from '@ionic/angular/standalone';
-import { DrinkService } from 'src/app/service/features/drink-service';
-import { Nav, Num, Str, Util } from 'src/app/utils/util';
-import { Router } from '@angular/router';
-import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
-import { WindowService } from 'src/app/service/window-service';
 import { addIcons } from 'ionicons';
 import { beer, globeOutline, searchOutline, informationCircle, water } from 'ionicons/icons';
+import { Router } from '@angular/router';
+//---
+import { Nav, Num, Str, Util } from 'src/app/utils/util';
+import { InputService } from 'src/app/service/infra/input-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
 import { APP_CONFIG } from 'src/app/config/app.constants';
-import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
-import { InputService } from 'src/app/service/input-service';
-import { IMenuItem, MenuService } from 'src/app/service/features/menu-service';
 import { PartyService } from 'src/app/service/features/party-service';
+import { DrinkService } from 'src/app/service/features/drink-service';
 import { HealthService } from 'src/app/service/features/health-service';
-
+import { IMenuItem, MenuService } from 'src/app/service/features/menu-service';
+//---
+import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
+import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
+//---
 @Component({
   selector: 'app-shop',
   templateUrl: './shop.page.html',

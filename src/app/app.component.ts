@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { DebugService } from './service/debug-service';
+//---
+import { DebugService } from './service/infra/debug-service';
+import { WindowService } from './service/infra/window-service';
 import { FeatureService } from './service/features/feature-service';
-import { WindowService } from './service/window-service';
-
+//---
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',

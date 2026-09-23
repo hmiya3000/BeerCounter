@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ILoan } from '../interface/loan'
+import { ILoan } from 'src/app/interface/loan'
 import { FinanceService } from './finance-service';
 
 @Injectable({

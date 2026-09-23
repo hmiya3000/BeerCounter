@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
-import { ILand, IHouse } from '../interface/estate';
-import { Land } from '../class/land';
-import { House } from '../class/house';
-import { Estate } from '../class/estate';
+//---
 import { DateService } from './date-service';
 import { InputService } from './input-service';
-import { APP_CONFIG } from '../config/app.constants';
-import { Str } from '../utils/util';
-
+import { Str } from 'src/app/utils/util';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
+import { ILand, IHouse } from 'src/app/interface/estate';
+import { Land } from 'src/app/class/land';
+import { House } from 'src/app/class/house';
+import { Estate } from 'src/app/class/estate';
+//---
 @Injectable({
   providedIn: 'root'
 })
@@ -45,7 +47,7 @@ export class PropService {
     this.house                    = _house;
     //---
     this.termPropMin              = _house.termAcqu -12;
-    this.termPropMax              = this.dateSvc.getNumTermNow() + 24;
+    this.termPropMax              = this.dateSvc.nowDate().term + 24;
     this.termPropCurr             = _house.termAcqu;
     this.roadrateCurr             = this.land.roadrate;
     this.replaceCostCurr          = this.house.replacementCost;
@@ -68,7 +70,7 @@ export class PropService {
   }
   //===========================================================================
   strCurrYear(){
-    return this.dateSvc.getYear(this.termPropCurr) + "年";
+    return this.dateSvc.termToYear(this.termPropCurr) + "年";
   }
   public get strLandArea() : string {
     return Str.float(this.land.area, APP_CONFIG.DEC_PLACE_AREA ) + '㎡';
@@ -402,13 +404,6 @@ export class PropService {
     }
   }
   //===========================================================================
-  //---
-  private rangeMin(){
-    return this.house.termAcqu;
-  }
-  private rangeMax(){
-    return this.dateSvc.getNumTermNow();   
-  }
   public onIonRange(event: CustomEvent, mode:string){
     if (mode == "ionInput"){
       this.termPropCurr = Math.round(this.termPropMin + (this.termPropMax - this.termPropMin) * ( event.detail.value / 1200));

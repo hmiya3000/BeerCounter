@@ -3,20 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Camera, CameraResultType,CameraSource } from '@capacitor/camera'; 
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonList, IonCard, IonCardContent, IonItem, IonRange, IonModal, IonSegmentButton, IonLabel, IonSegment, IonGrid, IonRow, IonCol, IonButtons } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
 import { addIcons } from 'ionicons';
 import { beer, resizeOutline, createOutline, cameraOutline,camera } from 'ionicons/icons';
-import { Capacitor } from '@capacitor/core';
-import { WindowService } from 'src/app/service/window-service';
-import { InputService } from 'src/app/service/input-service';
-import { DEF } from 'src/app/config/default-constants';
-import { DrinkService } from 'src/app/service/features/drink-service';
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import '@tensorflow/tfjs-backend-cpu'; 
-import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
-import { APP_CONFIG } from 'src/app/config/app.constants';
+//---
 import { Str } from 'src/app/utils/util';
-
+import { InputService } from 'src/app/service/infra/input-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
+import { DEF } from 'src/app/config/default-constants';
+import { DrinkService } from 'src/app/service/features/drink-service';
+//---
+import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
+//---
 @Component({
   selector: 'app-measure',
   templateUrl: './measure.page.html',

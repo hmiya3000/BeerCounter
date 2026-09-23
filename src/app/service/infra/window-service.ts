@@ -1,15 +1,16 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Subject, BehaviorSubject} from 'rxjs';
+import { App } from '@capacitor/app'; 
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { PluginListenerHandle,Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
 import { AdService } from './ad-service';
-import { APP_CONFIG } from '../config/app.constants';
-import { App } from '@capacitor/app'; 
 import { DeviceService } from './device-service';
-
+//---
 @Injectable({
   providedIn: 'root',
 })

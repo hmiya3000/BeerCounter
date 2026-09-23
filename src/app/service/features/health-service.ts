@@ -3,7 +3,7 @@ import { Blood, Body, BodyFactor } from 'src/app/class/health';
 import { APP_CONFIG } from 'src/app/config/app.constants';
 import { IAlcToleranceListItem, IBlood, IBody, IBodyFactor, IAlcToleranceInfo, AlcToleranceLevel } from 'src/app/interface/health';
 import { Color, Num, Str, Util } from 'src/app/utils/util';
-import { DateService } from '../date-service';
+import { DateService } from '../infra/date-service';
 
 export interface IBloodAlcohol {
   limit:        number;

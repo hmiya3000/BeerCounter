@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular/standalone';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
-import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition, BannerAdPluginEvents, AdMobBannerSize , AdOptions, AdLoadInfo, InterstitialAdPluginEvents ,RewardAdOptions, RewardAdPluginEvents, AdMobRewardItem, AdMobInitializationOptions   } from '@capacitor-community/admob';
-import { AD_CONFIG, DEVICE_CONFIG } from '../config/device-constants';
-import { MockService } from './mock-service';
 import { TrackingAuthorizationStatusInterface } from '@capacitor-community/admob/dist/esm/shared/tracking-authorization-status.interface';
-
+import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition, BannerAdPluginEvents, AdMobBannerSize , AdOptions, AdLoadInfo, InterstitialAdPluginEvents ,RewardAdOptions, RewardAdPluginEvents, AdMobRewardItem, AdMobInitializationOptions   } from '@capacitor-community/admob';
+//---
+import { AD_CONFIG } from 'src/app/config/device-constants';
+import { MockService } from './mock-service';
+//---
 let isAdRotatingGlobal = false;
 
 @Injectable({

@@ -4,26 +4,29 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonList, IonItem, IonLabel, IonButton, IonItemOption, IonItemOptions, IonItemSliding, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonRange, IonModal, IonLoading } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { trash, timeOutline, square, calendarOutline, beer, documentText, documentTextOutline, searchOutline, water, cafe, filter, wine } from 'ionicons/icons';
-import {  DrinkService, IDisplayDrink, ITipsBloodAlcohol} from 'src/app/service/features/drink-service';
-import { DateService } from 'src/app/service/date-service';
-import { AlertService } from 'src/app/service/alert-service';
-import { IDrink } from 'src/app/interface/drink';
+//---
 import { Num, Str, Util } from 'src/app/utils/util';
-import { ChartComponent } from 'src/app/components/chart/chart.component';
-import { ChartService } from 'src/app/service/chart-service';
-import { SharedModalComponent } from "src/app/components/shared-modal/shared-modal.component";
-import { Drink } from 'src/app/class/drink';
+import { AlertService } from 'src/app/service/infra/alert-service';
+import { ChartService } from 'src/app/service/infra/chart-service';
+import { DateService } from 'src/app/service/infra/date-service';
+import { InputService } from 'src/app/service/infra/input-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
 import { APP_CONFIG } from 'src/app/config/app.constants';
-import { SwipeLayoutComponent } from 'src/app/components/swipe-layout/swipe-layout.component';
-import { InlineDatetimeComponent } from 'src/app/components/inline-datetime/inline-datetime.component';
-import { WindowService } from 'src/app/service/window-service';
-import { InputService } from 'src/app/service/input-service';
-import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
+import { IDrink } from 'src/app/interface/drink';
+import { Drink } from 'src/app/class/drink';
 import { IDisplayParty, ISummaryDisplayData, PartyService, SummaryDisplayData } from 'src/app/service/features/party-service';
-import { MenuService } from 'src/app/service/features/menu-service';
-import { HealthService } from 'src/app/service/features/health-service';
 import { DiaryService } from 'src/app/service/features/diary-service';
-
+import {  DrinkService, IDisplayDrink, ITipsBloodAlcohol} from 'src/app/service/features/drink-service';
+import { HealthService } from 'src/app/service/features/health-service';
+import { MenuService } from 'src/app/service/features/menu-service';
+//---
+import { ChartComponent } from 'src/app/components/chart/chart.component';
+import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
+import { InlineDatetimeComponent } from 'src/app/components/inline-datetime/inline-datetime.component';
+import { SharedModalComponent } from "src/app/components/shared-modal/shared-modal.component";
+import { SwipeLayoutComponent } from 'src/app/components/swipe-layout/swipe-layout.component';
+//---
 @Component({
   selector: 'app-order',
   templateUrl: './order.page.html',

@@ -5,12 +5,15 @@ import { HttpClient } from '@angular/common/http';
 import { addIcons } from 'ionicons';
 import { storefront, home, documentText, informationCircle, calendar, beer} from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
+//---
+import { DeviceService } from 'src/app/service/infra/device-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
 import { AppmodeService } from 'src/app/service/features/appmode-service';
-import { DeviceService } from 'src/app/service/device-service';
-import { WindowService } from 'src/app/service/window-service';
-import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
 import { MenuService } from 'src/app/service/features/menu-service';
-
+//---
+import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
+//---
 @Component({
   selector: 'app-tab-party',
   templateUrl: 'tab-party.page.html',

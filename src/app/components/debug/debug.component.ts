@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonItem, IonLabel, IonGrid, IonRow, IonCol } from "@ionic/angular/standalone";
 import { Router } from '@angular/router';
-import { DebugService } from '../../service/debug-service';
-import { AppmodeService } from '../../service/features/appmode-service';
-import { WindowService } from '../../service/window-service';
-import { Nav } from '../../../app/utils/util';
+import { Nav } from 'src/app/utils/util';
+import { DebugService } from 'src/app/service/infra/debug-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+import { AppmodeService } from 'src/app/service/features/appmode-service';
 
 @Component({
   selector: 'app-debug',

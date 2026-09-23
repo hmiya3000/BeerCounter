@@ -2,17 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavController, IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonItem, IonGrid, IonRow, IonCol, IonRadio, IonRadioGroup, IonLabel, IonList } from '@ionic/angular/standalone';
-import { Nav, Num } from 'src/app/utils/util';
-import { ITextValuePair } from 'src/app/interface/drink';
-import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
-import { NumericInputComponent } from 'src/app/components/numeric-input/numeric-input.component';
-import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
-import { InputService } from 'src/app/service/input-service';
-import { APP_CONFIG } from 'src/app/config/app.constants';
 import { Router } from '@angular/router';
-import { MenuService } from 'src/app/service/features/menu-service';
+//---
+import { Nav, Num } from 'src/app/utils/util';
+import { InputService } from 'src/app/service/infra/input-service';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
+import { ITextValuePair } from 'src/app/interface/drink';
 import { PartyService } from 'src/app/service/features/party-service';
-
+import { MenuService } from 'src/app/service/features/menu-service';
+//---
+import { FreetextInputComponent } from 'src/app/components/freetext-input/freetext-input.component';
+import { NumericInputComponent } from 'src/app/components/numeric-input/numeric-input.component';
+import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
+//---
 @Component({
   selector: 'app-addmenu',
   templateUrl: './addmenu.page.html',

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDiary } from 'src/app/interface/diary';
-import { DateService } from '../date-service';
+import { DateService } from '../infra/date-service';
 import { Util } from 'src/app/utils/util';
 
 @Injectable({

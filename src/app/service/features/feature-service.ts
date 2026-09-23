@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { RoutingService } from '../infra/routing-service';
 import { AppmodeService } from './appmode-service';
-import { RoutingService } from '../routing-service';
 import { PartyService } from './party-service';
 
 @Injectable({

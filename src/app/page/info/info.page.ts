@@ -2,29 +2,32 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, IonGrid, IonRow, IonCol, IonLabel, IonTextarea, IonIcon, IonList, IonItemOptions, IonItemOption, IonItemSliding, IonButtons, IonInput } from '@ionic/angular/standalone';
-import { DEF } from 'src/app/config/default-constants';
-import { AlertService } from 'src/app/service/alert-service';
-import { AppmodeService } from 'src/app/service/features/appmode-service';
-import { WindowService } from 'src/app/service/window-service';
-import { DrinkService } from 'src/app/service/features/drink-service';
-import { DebugService } from 'src/app/service/debug-service';
-import { DebugComponent } from 'src/app/components/debug/debug.component';
-import { NumericInputComponent } from 'src/app/components/numeric-input/numeric-input.component';
-import { InputService } from 'src/app/service/input-service';
-import { Num, Str } from 'src/app/utils/util';
-import { APP_CONFIG } from 'src/app/config/app.constants';
-import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
 import { addIcons } from 'ionicons';
 import { calendarNumberOutline, calendarOutline, timeOutline, trash } from 'ionicons/icons';
-import { DateService } from 'src/app/service/date-service';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
+import { DEF } from 'src/app/config/default-constants';
+import { Num, Str } from 'src/app/utils/util';
+import { AppmodeService } from 'src/app/service/features/appmode-service';
+import { AlertService } from 'src/app/service/infra/alert-service';
+import { DateService } from 'src/app/service/infra/date-service';
+import { DebugService } from 'src/app/service/infra/debug-service';
+import { DeviceService } from 'src/app/service/infra/device-service';
+import { InputService } from 'src/app/service/infra/input-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
 import { AlcToleranceLevel, GenderType, IBlood, IBody } from 'src/app/interface/health';
-import { TipsItemComponent } from "src/app/components/tips-item/tips-item.component";
-import { InlineDatetimeComponent } from 'src/app/components/inline-datetime/inline-datetime.component';
-import { DeviceService } from 'src/app/service/device-service';
+import { DrinkService } from 'src/app/service/features/drink-service';
 import { MenuService } from 'src/app/service/features/menu-service';
 import { PartyService } from 'src/app/service/features/party-service';
 import { HealthService } from 'src/app/service/features/health-service';
-
+import { DebugComponent } from 'src/app/components/debug/debug.component';
+//---
+import { InlineDatetimeComponent } from 'src/app/components/inline-datetime/inline-datetime.component';
+import { NumericInputComponent } from 'src/app/components/numeric-input/numeric-input.component';
+import { TipsItemComponent } from "src/app/components/tips-item/tips-item.component";
+import { SharedModalComponent } from 'src/app/components/shared-modal/shared-modal.component';
+//---
 @Component({
   selector: 'app-info',
   templateUrl: './info.page.html',

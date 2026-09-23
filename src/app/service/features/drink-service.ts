@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { APP_CONFIG } from 'src/app/config/app.constants';
 import { DEF } from 'src/app/config/default-constants';
-import { Drink } from '../../class/drink';
-import { DateService } from '../date-service';
 import { IDrink } from 'src/app/interface/drink';
-import { Color, Num, Str, Util } from 'src/app/utils/util';
-import { HealthService } from './health-service';
-import { Blood, Body } from 'src/app/class/health';
 import { AlcToleranceLevel, GenderType, IBodyFactor } from 'src/app/interface/health';
-import { IndicatorData } from '../chart-service';
-
+import { Blood, Body } from 'src/app/class/health';
+import { Drink } from '../../class/drink';
+import { HealthService } from './health-service';
+//---
+import { Color, Num, Str, Util } from 'src/app/utils/util';
+import { IndicatorData } from '../infra/chart-service';
+import { DateService } from '../infra/date-service';
+//---
 
 export interface ITipsBloodAlcohol {
   name:         string;

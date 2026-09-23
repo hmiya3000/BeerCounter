@@ -2,21 +2,23 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonRow, IonCol, IonItem, IonLabel, IonGrid, IonIcon, IonButton } from '@ionic/angular/standalone';
-import { DEF } from 'src/app/config/default-constants';
-import { AlcToleranceLevel, GenderType } from 'src/app/interface/health';
-import { DateService } from 'src/app/service/date-service';
-import { InputService } from 'src/app/service/input-service';
-import { DrinkService } from 'src/app/service/features/drink-service';
-import { WindowService } from 'src/app/service/window-service';
-import { NumericInputComponent } from 'src/app/components/numeric-input/numeric-input.component';
-import { APP_CONFIG } from 'src/app/config/app.constants';
-import { Nav } from 'src/app/utils/util';
-import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { informationCircle } from 'ionicons/icons';
+import { Router } from '@angular/router';
+//---
+import { DEF } from 'src/app/config/default-constants';
+import { Nav } from 'src/app/utils/util';
+import { AlcToleranceLevel, GenderType } from 'src/app/interface/health';
+import { DateService } from 'src/app/service/infra/date-service';
+import { InputService } from 'src/app/service/infra/input-service';
+import { WindowService } from 'src/app/service/infra/window-service';
+//---
+import { APP_CONFIG } from 'src/app/config/app.constants';
 import { PartyService } from 'src/app/service/features/party-service';
+import { DrinkService } from 'src/app/service/features/drink-service';
 import { HealthService } from 'src/app/service/features/health-service';
-
+import { NumericInputComponent } from 'src/app/components/numeric-input/numeric-input.component';
+//---
 @Component({
   selector: 'app-first',
   templateUrl: './first.page.html',
