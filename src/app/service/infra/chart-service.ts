@@ -24,7 +24,7 @@ export class ChartService {
 
   private defaultOptions: ChartConfiguration['options'] = {
     responsive: true,           
-    maintainAspectRatio: false, 
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: true,
@@ -116,7 +116,14 @@ export class ChartService {
   //===========================================================================
   public updateChartOption(chartId: string, _xConf:{labels: string[], axisMode:XAxisMode}, _yConf:{min:number, max:number} ,  useAnimation: boolean = true, extraOptions?: { targetYLinesSetting?: CustomYLineSetting[], targetXLines?: number[] }){
 
+    const theme = this.getChartTheme();
     const currentBaseOption = this.chartOptionsMap[chartId] || { ...this.defaultOptions };
+    currentBaseOption.color = theme.textColor; 
+    if (currentBaseOption.plugins?.legend?.labels) {
+      currentBaseOption.plugins.legend.labels.color = theme.textColor;
+    }
+
+
     const currentLabels = (_xConf.labels && _xConf.labels.length > 0 ? _xConf.labels : this.chartDataMap[chartId]?.labels || []) as string[];
     const existingScales: any   = currentBaseOption.scales || {};
     let xAxisConfig: any;
@@ -126,11 +133,16 @@ export class ChartService {
         type: 'category',
         ticks: {
           font: { size: 9 },
+          color: theme.textColor, 
           autoSkip: true, // ラベルが被るのを防ぐために自動間引きを有効化
           callback: function(this: any,value: any) {
             return this.getLabelForValue(value);
           }            
-        }
+        },
+        grid: {
+          color: theme.gridColor,
+          borderDash: [4, 4]
+        }        
       };      
     } else {
       // ⭕ 【数値モード ('linear') / 時刻モード ('time')】
@@ -144,11 +156,16 @@ export class ChartService {
         bounds: 'ticks',
         ticks: {
           font: { size: 9 },
+          color: theme.textColor, 
           stepSize: xParam.step,
           autoSkip: false,
           callback: (value: any) => {
             return formatXAxisTick(null, value, isTimeModeActive);
           }            
+        },
+        grid: {
+          color: theme.gridColor,
+          borderDash: [4, 4]
         }
       };
     }
@@ -166,10 +183,11 @@ export class ChartService {
           max: yParam.rangeP, 
           ticks: { 
             stepSize: yParam.step, 
-            font: { size: 9 } 
+            font: { size: 9 },
+            color: theme.textColor, 
           },
           grid: {
-            color: (context: any) => (context.tick?.value === 0 ? '#c0c0c0' : '#e0e0e0'),
+            color: (context: any) => (context.tick?.value === 0 ? theme.zeroGridColor : theme.gridColor),
           }
         }
       },
@@ -344,7 +362,7 @@ export class ChartService {
           const pixelY = y.getPixelForValue(setting.yValue);
           if (pixelY >= top && pixelY <= bottom) {
             ctx.lineWidth = 2;            // 線の太さ
-            ctx.strokeStyle = setting.color || '#ff6b6b';
+            ctx.strokeStyle = setting.color || '#ff6666';
             ctx.setLineDash([4, 4]);        // 点線にする設定（実線にしたい場合はこの行を削除）
             ctx.beginPath();
             ctx.moveTo(left, pixelY);
@@ -384,6 +402,20 @@ export class ChartService {
     const p = Math.floor(Math.log10(num));
     return Math.ceil(num / Math.pow(10, p)) * Math.pow(10, p);
   }
+  //===========================================================================
+  private getChartTheme() {
+    // OSがダークモードかどうかを判定
+    const rootStyle = getComputedStyle(document.body);
+    const fontColor   = rootStyle.getPropertyValue('--beetre-font-normal').trim();
+    const borderColor = rootStyle.getPropertyValue('--beetre-border-light').trim();
+
+    return {
+      // 万が一読み込めなかった場合のフォールバック（バックアップの色）も指定しておくと安全です
+      textColor: fontColor      || '#333333',     
+      gridColor: borderColor    || '#E0E0E0',   
+      zeroGridColor: fontColor  || '#C0C0C0', 
+    };
+  }  
   //===========================================================================
 }
 //=============================================================================

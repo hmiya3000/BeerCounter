@@ -33,23 +33,22 @@ export class WindowService {
   private _capacitor_getPlatform      = '';
   private isAppWithAd:boolean         = false;
 
-  currentOrientation: string    = '';
-  public isPortrait:boolean           = false;
-  public isTablet:boolean             = false;
+  public  isPortrait:boolean          = false;
+  public  isTablet:boolean            = false;
   
-  public navigationBarHeight:number   = WindowService.SAFEAREA_BTM_P_AND;
-  public adBannerHeight:number        = 0;
-  public svh:number                   = WindowService.SVH_DEFAULT;
-  public svw:number                   = WindowService.SVW_DEFAULT;
-  public safeAreaBottom:number        = 0;
-  public margin:number                = 5;
+  public  navigationBarHeight:number  = WindowService.SAFEAREA_BTM_P_AND;
+  public  adBannerHeight:number       = 0;
+  public  svh:number                  = WindowService.SVH_DEFAULT;
+  public  svw:number                  = WindowService.SVW_DEFAULT;
+  public  safeAreaBottom:number       = 0;
+  public  margin:number               = 5;
 
-  private cssPaddingBottomCurr:number         = -1;
+  private   cssPaddingBottomCurr:number       = -1;
   private _adBannerHeightPortraitInit:number  = 0;
-  private _adBannerHeightLandscapeInit:number = 0;
   private _headerHeightInit:number            = WindowService.HEADER_HEIGHT_DEFAULT;
   private _adBannerHeightInitDebug:number     = 0;
-  
+  private isSmallScreenCached: boolean | null = null;
+
   private isKeyboardNowVisible: boolean       = false; //キーボード表示状態
   private isModalNowVisible: boolean          = false; //広告なしモーダル表示状態
 
@@ -57,8 +56,6 @@ export class WindowService {
 
   private keyboardShowListener!: PluginListenerHandle;
   private keyboardHideListener!: PluginListenerHandle;
-
-
   //===========================================================================
   constructor(
     private platform: Platform,
@@ -71,9 +68,6 @@ export class WindowService {
   }
 
   public async initialize(_isAppWithAd:boolean, _isAdTestMode:boolean){
-    if (this._capacitor_getPlatform === 'android'){
-      await ScreenOrientation.lock({ orientation: 'portrait' });  //回転によるAdMobのクラッシュ解消まで横向き禁止
-    }
     this.isAppWithAd    = _isAppWithAd;
 
     await this.initStatusBarThemeListener();
@@ -90,15 +84,17 @@ export class WindowService {
     if (this.orientationListener){
       this.orientationListener.remove(); // 監視をストップしてメモリを解放
     }
+    if (this.keyboardShowListener){
+      this.keyboardShowListener.remove();
+    }
+    if (this.keyboardHideListener){
+      this.keyboardHideListener.remove();
+    }
   }
   public readBackup(){
     this._adBannerHeightPortraitInit    = 0;
     if('_adBannerHeightPortraitInit' in localStorage){
       this._adBannerHeightPortraitInit  = JSON.parse(localStorage['_adBannerHeightPortraitInit']);
-    }
-    this._adBannerHeightLandscapeInit   = 0;
-    if('_adBannerHeightLandscapeInit' in localStorage){
-      this._adBannerHeightLandscapeInit = JSON.parse(localStorage['_adBannerHeightLandscapeInit']);
     }
     this._headerHeightInit              = WindowService.HEADER_HEIGHT_DEFAULT;
     if('_headerHeightInit' in localStorage){
@@ -114,7 +110,6 @@ export class WindowService {
     localStorage.removeItem('_adBannerHeightLandscapeInit');
     localStorage.removeItem('_headerHeightInit');
     this._adBannerHeightPortraitInit  = 0;
-    this._adBannerHeightLandscapeInit = 0;
     this._headerHeightInit            = WindowService.HEADER_HEIGHT_DEFAULT;
   }
   public clearBackupDebug(){
@@ -187,7 +182,7 @@ export class WindowService {
       }
     }
   }
-  private initStatusBarThemeListener() {
+  private async initStatusBarThemeListener() {
     // 1. 起動した瞬間の文字色を即座に反映
     this.updateStatusBarTheme();
 
@@ -195,6 +190,7 @@ export class WindowService {
     darkModeMediaQuery.addEventListener('change', async () => {
       console.log('[Window] Web側のカラー設定変更を検知しました');
       await this.updateStatusBarTheme();
+      this.layoutChanged$.next();
     });
     App.addListener('appStateChange', async (state) => {
       if (state.isActive) {
@@ -321,26 +317,26 @@ export class WindowService {
     const orientation = await ScreenOrientation.orientation();    
     this.isPortrait   = orientation.type.startsWith('portrait');
     //----
-    this.updateCssOrientation(this.isPortrait);
-    this.adBannerHeight = this.isPortrait ? this._adBannerHeightPortraitInit : this._adBannerHeightLandscapeInit;
+    this.updateCssPickerWidth(this.isPortrait);
+    this.adBannerHeight = this.isPortrait ? this._adBannerHeightPortraitInit : 0;
     this.updateLayout(this.adBannerHeight);
     console.log('[Window]Dist:layoutChanged');
     this.layoutChanged$.next();
-    console.log('[Window]getOrientation:po',this._adBannerHeightPortraitInit,'la',this._adBannerHeightLandscapeInit,this.isPortrait)
+    console.log('[Window]getOrientation:po',this._adBannerHeightPortraitInit,this.isPortrait)
     //----
     this.orientationListener = await ScreenOrientation.addListener(
       'screenOrientationChange', 
       (result) => {
-        this.currentOrientation = result.type;
         console.log('[Window]Listen at ScreenOrientation',result.type)
         const isPortraitNow     = result.type.startsWith('portrait');
         if (isPortraitNow !== this.isPortrait ) {
           this.isPortrait = isPortraitNow;
-          this.updateCssOrientation(this.isPortrait);
-          this.updateLayout(this.estimateAdBannerHeight());
+          this.updateCssPickerWidth(this.isPortrait);
+          this.adBannerHeight = this.isPortrait ? this._adBannerHeightPortraitInit : 0;
+          this.updateLayout(this.adBannerHeight);
           console.log('[Window]Dist:layoutChanged');
           this.layoutChanged$.next();
-          console.log('[Window]Dist:orientationOnly');
+          console.log('[Window]getOrientation:po',this._adBannerHeightPortraitInit,this.isPortrait);
           this.orientationOnly$.next(this.isPortrait);          
         } else {
           console.log(`[Window][画面回転スキップ] 上下または左右の反転のため、イベント発行をブロックしました: ${result.type}`);
@@ -349,7 +345,7 @@ export class WindowService {
       }
     );
   }
-  private updateCssOrientation( _isPortrait:boolean){
+  private updateCssPickerWidth( _isPortrait:boolean){
     let _pickerWidth:number   = 100;
     if (this.isTablet ){
       _pickerWidth  = 50;
@@ -381,9 +377,6 @@ export class WindowService {
       if (this.isPortrait){
         this._adBannerHeightPortraitInit              = _adBannerHeight;
         localStorage['_adBannerHeightPortraitInit']   = JSON.stringify(this._adBannerHeightPortraitInit);
-      } else {
-        this._adBannerHeightLandscapeInit             = _adBannerHeight;
-        localStorage['_adBannerHeightLandscapeInit']  = JSON.stringify(this._adBannerHeightLandscapeInit);
       }
     }
     this.updateCssPadding(_adBannerHeight);
@@ -402,16 +395,14 @@ export class WindowService {
     const _pickerHeight       =  this.isTablet ? 256 :   200 + 56 + _padding;
     if (this.cssPaddingBottomCurr != _padding){
       this.cssPaddingBottomCurr   = _padding;
-      document.documentElement.style.setProperty(
-        '--tabBarPaddingBottom', 
-        `${_padding}px`
-      );
+      document.documentElement.style.setProperty('--tabBarPaddingBottom', `${_padding}px`);
       console.log(`[Window][CSS変数注入] --tabBarPaddingBottom: ${_padding}px`);
-      document.documentElement.style.setProperty(
-        '--pickerHeight', 
-        `${_pickerHeight}px`
-      );
+      document.documentElement.style.setProperty('--pickerHeight', `${_pickerHeight}px`);
       console.log(`[Window][CSS変数注入] --pickerHeight: ${_pickerHeight}px`);
+      const tabBar = document.querySelector('ion-tab-bar') as HTMLElement;
+      if (tabBar) {
+        tabBar.style.setProperty('display', 'flex', 'important');
+      }
       this.layoutChanged$.next();
     }
   }
@@ -433,28 +424,59 @@ export class WindowService {
     }
     if (this.platform.is('android')) {
       const androidVersion = this.deviceSvc.infoVer().androidVersion;
-      if (androidVersion >= 15) {
-        _top    = 0;
-        try {
-          const computedStyle = window.getComputedStyle(document.documentElement);
-          const cssBottomVal  = computedStyle.getPropertyValue('--safe-area-inset-bottom') || '';
-          _bottom             = parseInt(cssBottomVal, 10) || 0;
-        } catch (e) {
-          // パース失敗時や未定義時の安全なフォールバック値（Android 15の標準的なナビゲーションバー高目安）
-          _bottom = 24; 
-        }
-      } else {
-        if (this.isPortrait) {
-          _top    = WindowService.SAFEAREA_TOP_P_AND;   // 24px
-          const isSmallScreen = window.matchMedia('(max-height: 640px)').matches;
-          if (isSmallScreen) {
-            _bottom = WindowService.SAFEAREA_BTM_P_AND_OLD; // 40px
-          } else {
-            _bottom = WindowService.SAFEAREA_BTM_P_AND;     // 48px
-          }
+      _top = WindowService.SAFEAREA_TOP_P_AND;
+      try {
+        const computedStyle = window.getComputedStyle(document.documentElement);
+        const cssBottomVal  = computedStyle.getPropertyValue('--safe-area-bottom-px')?.trim() || '';
+        console.log('cssBottomVal',cssBottomVal)      
+        if (cssBottomVal && !cssBottomVal.includes('env(')) {
+          _bottom = parseInt(cssBottomVal, 10) || 0;
         } else {
-          _top    = 0;
-          _bottom = 0;  // 横向き時はバーが横に移動するため下部は 0px になります
+          _bottom = 0;
+          console.log('error?_bottom',_bottom)
+        }
+        console.log('_bottom',_bottom)
+        if (this.isPortrait) {
+          if (androidVersion < 11) {
+            if (this.isSmallScreenCached === null) {
+              this.isSmallScreenCached = window.matchMedia('(max-height: 640px)').matches;
+              console.log(`[Window] 画面サイズ判定を固定しました: isSmallScreen = ${this.isSmallScreenCached}`);
+            }
+            _bottom = this.isSmallScreenCached ? WindowService.SAFEAREA_BTM_P_AND_OLD : WindowService.SAFEAREA_BTM_P_AND; // 40 or 48
+            console.log(`[Window][Android10以下救済] Android ${androidVersion} のため固定値 ${_bottom}px を適用`);
+          } else if (_bottom < 20) {
+            if (this.isSmallScreenCached === true || (_bottom === 0 && androidVersion < 15)) {
+              // 3ボタン端末（SO-41Bなど）の回転直後の0落ちタイムラグと断定し、48pxを強制適用します
+              _bottom = WindowService.SAFEAREA_BTM_P_AND; // 48
+              console.log(`[Window][縦3ボタンタイムラグ防衛] 3ボタンモードの記憶に基づき、48pxを強制適用しました。`);
+            } else {
+              // ジェスチャー端末（Pixel 9など）の回転直後の0落ちタイムラグと断定し、適正な安全余白をあてがいます
+              _bottom = 16; 
+              console.log(`[Window][縦ジェスチャー防衛] ジェスチャーモードの想定に基づき、安全余白16pxを適用しました。`);
+            }
+          }
+          console.log('[Window]getSafeAreaValuesNative()',_bottom)
+        } else {
+          if (androidVersion < 11) {
+            // SO-05K（Android 10以下）などの横向き時は、3ボタンが必ず横に逃げるため、
+            // 下部セーフエリアを確実に 0px に上書きして無駄な余白を完全に消し去ります。
+            _bottom = 0;
+            console.log(`[Window][Android10以下横向き] 3ボタンが横に移動したため、下部を0pxにリセットしました`);
+          } else {
+            if (_bottom >= 40) {
+              // 端末がジェスチャーモードではなく「3ボタンモード」である形跡（横幅の差分が大きい）があれば、
+              // 下部の余白は不要（横にあるため）なので、0px に補正します。
+              _bottom = 0;
+              console.log(`[Window][横3ボタン補正] 3ボタンが横に移動したため、下部セーフエリアを 0px に修正しました。`);
+            }
+          }
+        }
+      } catch (e) {
+        if (this.isPortrait) {
+          const isSmallScreen = window.matchMedia('(max-height: 640px)').matches;
+          _bottom = isSmallScreen ? WindowService.SAFEAREA_BTM_P_AND_OLD : WindowService.SAFEAREA_BTM_P_AND; // 40 or 48
+        } else {
+          _bottom = 0;
         }
       }
       return { top: _top, bottom: _bottom };
@@ -548,12 +570,12 @@ export class WindowService {
     if (this.isPortrait){
       _estimateHeight = this._adBannerHeightPortraitInit;
     } else {
-      _estimateHeight = this._adBannerHeightLandscapeInit;
+      _estimateHeight = 0;
     }
     if (_estimateHeight == 0){
       _estimateHeight = this.adBannerHeight;
     }
-    console.log('[Window]estimateAdBannerHeight:',_estimateHeight,'px portlait:',this._adBannerHeightPortraitInit,'landscape:',this._adBannerHeightLandscapeInit,this.isPortrait)
+    console.log('[Window]estimateAdBannerHeight:',_estimateHeight,'px portlait:',this._adBannerHeightPortraitInit,this.isPortrait)
     return _estimateHeight;
   }
   public getElementAreaSize(_element:ElementRef): {width:number, height:number}{
@@ -598,9 +620,7 @@ export class WindowService {
       if (this.adSvc.isInitialized()){
         this.adBannerHeight               = 0;
         this._adBannerHeightPortraitInit  = 0;
-        this._adBannerHeightLandscapeInit = 0;
         localStorage['_adBannerHeightPortraitInit']   = JSON.stringify(this._adBannerHeightPortraitInit);
-        localStorage['_adBannerHeightLandscapeInit']  = JSON.stringify(this._adBannerHeightLandscapeInit);
         this.adSvc.unloadAdBanner(this);
       }
       _nextChenckSec = Math.ceil((this._adRewardExpireDate - Date.now() ) /1000);  
@@ -630,54 +650,70 @@ export class WindowService {
     }
   }
   //===========================================================================
+  public isScreenClearForAd(): boolean {
+    // キーボードもモーダルも開いていない、クリアな状態の時だけ true を返す
+    return !this.isKeyboardNowVisible && !this.isModalNowVisible;
+  }
+  //===========================================================================
   public async hideAdBannerByModal(){
     if (this.isAppWithAd){
       console.log('[Window]hideAdBannerByModal()')
       this.isModalNowVisible            = true;
-
-      await this.adSvc.requestHideAdBanner();
+      if (!this.adSvc.isAdRotatingGlobal && this.isPortrait) {
+        await this.adSvc.requestHideAdBanner();
+      }
     }
   }
   public async resumeAdBannerByModal(){
     if (this.isAppWithAd){
       console.log('[Window]resumeAdBannerByModal()')
       this.isModalNowVisible            = false;
-      if ( this._isAllowResumeAdBanner() ){
-        await this.adSvc.allowResumeAdBanner(this);
+      if (!this.adSvc.isAdRotatingGlobal && this.isPortrait) {
+        if ( this.isScreenClearForAd() ){
+          this.adBannerHeight = this.isPortrait ? this._adBannerHeightPortraitInit : 0;
+          this.updateLayout(this.adBannerHeight);
+          await this.adSvc.allowResumeAdBanner(this);
+        }
       }
     }
-  }
-  private _isAllowResumeAdBanner(){
-    return !this.isKeyboardNowVisible && !this.isModalNowVisible;
   }
   //===========================================================================
-  public async hideAdBannerByKeyboard(){
-    if (this.isAppWithAd){
-      console.log('[Window]hideAdBannerByKeyboard()')
-      this.isKeyboardNowVisible            = true;
-
-      await this.adSvc.requestHideAdBanner();
-    }
-  }
-  public async resumeAdBannerByKeyboard(){
-    if (this.isAppWithAd){
-      console.log('[Window]resumeAdBannerByKeyboard()')
-      this.isKeyboardNowVisible            = false;
-      if ( this._isAllowResumeAdBanner() ){
-        await this.adSvc.allowResumeAdBanner(this);
-      }
-    }
-  }
-
   private initializeKeyboard(_capacitor_getPlatform:string){
+    if (this._capacitor_getPlatform === 'web')return;
     if (_capacitor_getPlatform === 'ios' ){
       this._addAccessaryBarOnKeyboard();
       this._fobiddenUndoPopup();
-      this._initKeyboardListener(_capacitor_getPlatform);
-    } else if (_capacitor_getPlatform === 'android') {
-      // 🤖 Android用のブラウザ標準ビューポート監視を起動
-      this._initKeyboardListenerAndroid();
     }
+    setTimeout(() => {
+      this.initKeyboardShowListener();
+      this.initKeyboardHideListener();
+    }, 1000); // 1秒待ってから確実にリスナーを登録する
+  }
+  private async initKeyboardShowListener(){
+    this.keyboardShowListener = await Keyboard.addListener('keyboardWillShow', async () => {
+      console.log('[Window]listen:keyboardWillShow')
+      this.isKeyboardNowVisible            = true;
+      if (this.isAppWithAd){
+        if (!this.adSvc.isAdRotatingGlobal && this.isPortrait) {
+          await this.adSvc.requestHideAdBanner();
+        }
+      }
+    });
+  }
+  private async initKeyboardHideListener(){
+    this.keyboardHideListener = await Keyboard.addListener('keyboardWillHide', async () => {
+      console.log('[Window]listen:keyboardWillHide')
+      this.isKeyboardNowVisible            = false;
+      setTimeout(async () => {
+        if (this.isAppWithAd){
+          if ( this.isScreenClearForAd() ){
+            this.adBannerHeight = this.isPortrait ? this._adBannerHeightPortraitInit : 0;
+            this.updateLayout(this.adBannerHeight);
+            await this.adSvc.allowResumeAdBanner(this);
+          }
+        }
+      }, 300);
+    });
   }
   private _addAccessaryBarOnKeyboard(){
     //iPhoneやiPad（iOS実機）において、文字入力時に画面下からキーボードが
@@ -700,80 +736,6 @@ export class WindowService {
     } catch (error) {
       console.error('⚠️ 設定エラー:', error);
     }
-  }
-  private _initKeyboardListener(_capacitor_getPlatform:string){
-    //「アプリが起動したまさにその最初の数ミリ秒の間は、スマートフォンのネイティブシステム（OS層）や
-    // Capacitorのプラグイン回路自体がまだ『完全に目覚めきっておらず更地の状態』であるため、
-    // 最速のミリ秒精度でリスナーの配線を繋ごうとすると、電子レベルですれ違って登録に失敗（無視）されてしまう
-    // 『起動直後のサイレント不発バグ』を100%確実に回避（防衛）するため」
-    if (_capacitor_getPlatform === 'ios') {
-      setTimeout(() => {
-        this._initKeyboardListenersIOS();
-      }, 1000); // 1秒待ってから確実にリスナーを登録する
-    }
-    //Android版
-    //capacitor.config.ts　に以下の記述を入れ、キーボードOPENでの画面リサイズを止める。
-    //でないと、キーボードのOpen/Close後に向きを変えた時の
-    // キーボードのOpen/Closeでタブバーが消える不具合が発生する。
-    //
-    //const config: CapacitorConfig = {
-    //  plugins: {
-    //    Keyboard: {
-    //      resize: KeyboardResize.None,  ←IOS用
-    //      resizeOnFullScreen: true      ←Android用
-    //    }
-    //
-  }
-  private async _initKeyboardListenersIOS(){
-    this.keyboardShowListener = await Keyboard.addListener('keyboardWillShow', async () => {
-      console.log('[Window]listen:keyboardWillShow')
-      document.body.classList.add('keyboard-is-open');
-      this.isKeyboardNowVisible         = true;
-      await this.adSvc.requestHideAdBanner();
-    });
-    this.keyboardHideListener = await Keyboard.addListener('keyboardWillHide', async () => {
-      console.log('[Window]listen:keyboardWillHide')
-      this.handleKeyboardCloseWithDelay();
-    });
-  }
-  private _initKeyboardListenerAndroid() {
-    if (!window.visualViewport) return;
-    // 画面が起動した瞬間の初期の縦幅を保持
-    const initialHeight = window.innerHeight;
-
-    window.visualViewport.addEventListener('resize', async () => {
-      const currentViewportHeight = window.visualViewport!.height;
-
-      // 画面の初期高さから、現在の表示領域が150px以上縮んだら「キーボード表示」と判定
-      // (ナビゲーションバーの微小なサイズ変化による誤検知を防ぐための安全マージン)
-      const isKeyboardOpen = (initialHeight - currentViewportHeight) > 150;
-      // 状態に変化があった場合のみ処理を実行（多重発火の防止）
-      if (this.isKeyboardNowVisible !== isKeyboardOpen) {
-        if (isKeyboardOpen) {
-          console.log('[Window] Android: キーボード上昇を検出しました');
-          // 既存の広告非表示メソッドをそのまま叩く
-          await this.hideAdBannerByKeyboard();
-        } else {
-          console.log('[Window] Android: キーボード降下を検出しました');
-          
-          // iOS側の実装（handleKeyboardCloseWithDelay）と同様に、
-          // キーボードが引っ込むネイティブアニメーションの完了を少し待ってからバナーを復元する
-          setTimeout(async () => {
-            await this.resumeAdBannerByKeyboard();
-          }, 300);
-        }
-      }
-    });
-  }
-  private handleKeyboardCloseWithDelay() {
-    this.isKeyboardNowVisible             = false;
-    setTimeout(async () => {
-      document.body.classList.remove('keyboard-is-open');
-      if ( this._isAllowResumeAdBanner() ){
-        await this.adSvc.allowResumeAdBanner(this);
-        console.log('[Window]Banner resumed after keyboard hide');
-      }
-    }, 300);
   }
   //===========================================================================
 }

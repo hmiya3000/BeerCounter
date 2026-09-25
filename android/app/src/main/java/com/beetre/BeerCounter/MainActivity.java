@@ -12,7 +12,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        // EdgeToEdge.enable(this); // 古い実機でのバグ回避のためあえてコメントアウトを維持
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -20,9 +20,9 @@ public class MainActivity extends BridgeActivity {
         // ----------------------------------------------------
         // ★ Android 11〜13（SO-41B等）システムバー引き伸ばし（白い壁）バグ修正
         // ----------------------------------------------------
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);        
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
             getWindow().getDecorView().setOnApplyWindowInsetsListener((v, insets) -> {
                 // キーボード（IME）が表示されているかチェック
                 boolean isKeyboardVisible = insets.isVisible(WindowInsets.Type.ime());

@@ -21,9 +21,11 @@ interface AlertInputConfig {
 export class AlertService {
   
 
+
   constructor(
     private altCtrl: AlertController
   ) {}
+
   //===========================================================================
   //キーボードなし
   public async showAlert1bMessage(_header:string, _message:string) : Promise<void>  {

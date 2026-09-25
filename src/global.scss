@@ -82,7 +82,8 @@ ion-tab-bar {
   --padding-bottom:     var(--tabBarPaddingBottom, 0px) !important;
   margin-bottom: 0px !important;
   --background:         var(--ion-tab-bar-background);
-  border-top: 1px solid var(--beetre-border-light) !important;   
+  border-top: 1px solid var(--beetre-border-light) !important;
+  display:              flex !important;
 }
 //===========================================================================
 ion-segment,
@@ -144,16 +145,22 @@ ion-button{
 }
   ion-button.title-action-btn {
     // 幅を「文字数（決定/変更）」に左右されない絶対値に固定
-    width: 64px !important; 
-    --width: 64px !important;
+    width:            64px !important; 
+    --width:          64px !important;
 
     // 高さも切り替えでガタつかないよう固定
-    height: 32px !important;
-    --height: 32px !important;
+    height:           32px !important;
+    --height:         32px !important;
     
     // ボタン自体の余計な上下マージンをリセット
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+    margin-top:       0 !important;
+    margin-bottom:    0 !important;
+    white-space:      nowrap !important;
+    --padding-start:  4px !important;
+    --padding-end:    4px !important;
+    font-size:        0.9rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 //===========================================================================
 ion-item.titleH {

@@ -7,7 +7,6 @@ import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition, BannerAdPluginE
 import { AD_CONFIG } from 'src/app/config/device-constants';
 import { MockService } from './mock-service';
 //---
-let isAdRotatingGlobal = false;
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +34,7 @@ export class AdService {
   private _isInitializedAdBanner:boolean      = false;      //AdBannerのためのListener等々の初期化
   private _isInitializedAdReward:boolean      = false;      //AdRewardのためのListener等々の初期化
   public  isAdBannerDisplayed:boolean         = false;      //実際の表示状態
+  public  isAdRotatingGlobal:boolean          = false;
   private isActiveShowAdBannerOption:boolean  = false;      // AdMob.showBanner()を送った状態。AdMob.removeBanner()でクリア
   private reqHideBanner:boolean               = false;      // 上位によるhideBanner()を維持しつづける要求
   private _isReqCancelShowAdReward:boolean    = false;      // 上位によるAdRewardの準備からの再生キャンセル要求
@@ -125,16 +125,20 @@ export class AdService {
     if (!this._isInitializedAdBanner){
       await this.initAdBanner(this._isTestMode,this._adIdBanner, windowSvc)
     }
-    this.showAdBanner(windowSvc);
+    if (windowSvc.isPortrait) {
+      this.showAdBanner(windowSvc);
+    } else {
+      console.log('[Ad][起動時処理] 横向きで起動されたため、広告の初期ロードをスキップしました（方針③）');
+      this.isAdBannerDisplayed = false; // 広告はまだ画面に出ていない状態      
+    }
   }
   public async unloadAdBanner(windowSvc: any){
     if (this.adSizeChangedListenerHandle) {
       await this.adSizeChangedListenerHandle.remove();
       this.adSizeChangedListenerHandle = null;
     }
-    await this.AdMob_removeBanner();
+    await this.removeAdBanner();
     windowSvc.updateLayout(0);
-    this.isActiveShowAdBannerOption = false;
     this._isInitializedAdBanner     = false;  //これをクリアするともう一度loadAdBanner()を実行するまでAdBannerは何もしない
     this.isAdBannerDisplayed        = false;
     console.log('[Ad]unloadAdBanner done');
@@ -146,21 +150,43 @@ export class AdService {
     }
     this.adSizeChangedListenerHandle = await this.AdMob_addListener(BannerAdPluginEvents.SizeChanged, async (size: AdMobBannerSize) => {
       console.log(`[Ad]Listen at AdMob SizeChanged(size:${size.width},${size.height})`);
-      if (isAdRotatingGlobal) return;
+      if (this.isAdRotatingGlobal) return;
       if (size && size.height > 0) {
-        console.log(`[Ad]AdBanner[SizeChanged] 実測高さ: ${size.height}px`);
-        windowSvc.updateLayout(size.height);
+        if (windowSvc.isPortrait){
+          console.log(`[Ad]AdBanner[SizeChanged] 実測高さ: ${size.height}px`);
+          windowSvc.updateLayout(size.height);
+        } else {
+          console.log('[Ad]AdBanner[SizeChanged] Landscapeなので何もしない');
+        }
       }
     });
-    if (this.platform.is('android') ){
-      if (windowSvc && windowSvc.orientationOnly$) {
-        windowSvc.orientationOnly$.subscribe(async () => {
-          // 1. 処理が始まった最初の瞬間の「広告が表示されている（>0）」という事実を退避
-          console.log('[Ad]received orientationOnly')
-          this.isActiveShowAdBannerOption  = false;
-          await this._rotateForAndroid(windowSvc);
-        });
-      }
+    if (windowSvc && windowSvc.orientationOnly$) {
+      windowSvc.orientationOnly$.subscribe(async (isPortraitNow: boolean) => {
+        this.isAdRotatingGlobal = true;
+        // 1. 処理が始まった最初の瞬間の「広告が表示されている（>0）」という事実を退避
+        console.log('[Ad]received orientationOnly, isPortraitNow:', isPortraitNow);
+        if (!isPortraitNow) {
+          if (this.isActiveShowAdBannerOption) {
+            await this.hideAdBanner();
+            console.log('[Ad][Landscape] resumeサイクル: 広告を非表示(hide)にしました');
+          }
+        } else {
+          console.log('[Ad]reqHideBanner',this.reqHideBanner,windowSvc.isScreenClearForAd())
+          if (!this.reqHideBanner && windowSvc.isScreenClearForAd()) {
+            if (!this.isActiveShowAdBannerOption) {
+              console.log('[Ad][横起動➔縦回転] 縦画面になったため、初めての広告バナーを生成します');
+              await this.showAdBanner(windowSvc); 
+            } else {
+              await this.resumeAdBanner();
+              console.log('[Ad][Portrait] 通常のresumeサイクル: 広告を高速復元しました');
+            }
+          } else {
+            console.log('[Ad]reqHideBanner2',this.reqHideBanner,windowSvc.isScreenClearForAd())
+            console.log('[Ad][Portrait保留] キーボードまたはモーダルが表示中のため、広告の復元を閉じるまで保留します');
+          }
+        }
+        this.isAdRotatingGlobal = false;
+      });
     }
     this._isInitializedAdBanner = true;
   }
@@ -173,33 +199,6 @@ export class AdService {
       isTesting: this._isTestMode, 
       npa: true
     };
-  }
-  private async _rotateForAndroid(windowSvc: any){
-    isAdRotatingGlobal = true;
-    const nextAndroidMargin   = windowSvc.navigationBarHeight || 0;
-    console.log('[Ad]nextAndroidMargin=navigationBarHeight:',nextAndroidMargin)
-    try {
-      await this.rebootShowBanner(nextAndroidMargin)
-    } catch (e) {
-      console.error('[Ad]AdMob.remove/show error:', e);
-    } finally {
-      isAdRotatingGlobal = false; 
-    }
-  }
-  private async rebootShowBanner(margin:number){
-    if (this._isInitializedAdBanner){
-      console.log(`[Ad]AdMob.removeBanner/showBanner(margin:${margin})`);
-      this.isActiveShowAdBannerOption  = false;
-      await this.AdMob_removeBanner();
-      await this.sleep(150);
-      if (!this.reqHideBanner){
-        this.isActiveShowAdBannerOption  = true;
-        await this.AdMob_showBanner(this._adBannerBuildOptions(margin));
-      }
-    }
-  }
-  public sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
   public async requestHideAdBanner(){
     if (this._isInitializedAdBanner){
@@ -218,14 +217,12 @@ export class AdService {
   public async allowResumeAdBanner(windowSvc:any){
     if (this._isInitializedAdBanner){
       this.reqHideBanner  = false;
-      if (this.isActiveShowAdBannerOption){
-        await this.resumeAdBanner();
-      } else {
-        let androidAdMargin = 0;
-        if (this.platform.is('android')) {
-          androidAdMargin = windowSvc.navigationBarHeight || 0; // 縦起動なら 48px が入る
+      if (!this.isAdRotatingGlobal && windowSvc.isPortrait) {
+        if (this.isActiveShowAdBannerOption){
+          await this.resumeAdBanner();
+        } else {
+          await this.showAdBanner(windowSvc);
         }
-        await this.rebootShowBanner(androidAdMargin);
       }
     }
   }
@@ -238,7 +235,7 @@ export class AdService {
     }
   }
   private async showAdBanner(windowSvc: any){
-    console.log('[Ad]loadAdBanner _isInitializedAdInitialize:',this._isInitializedAdInitialize);
+    console.log('[Ad]showAdBanner _isInitializedAdInitialize:',this._isInitializedAdInitialize);
     if (!this._isInitializedAdInitialize)return;
     if (this._isInitializedAdBanner){
       if (!this.isAdBannerDisplayed){
@@ -248,12 +245,17 @@ export class AdService {
         }
         this.isActiveShowAdBannerOption  = true;
         await this.AdMob_showBanner(this._adBannerBuildOptions(androidAdMargin));
-        this.isAdBannerDisplayed = true;
+        this.reqHideBanner        = false;
+        this.isAdBannerDisplayed  = true;
         console.log('[Ad]AdMob.showAdBanner done');
       } else {
         console.log('[Ad]Banner already displayed')
       }
     }
+  }
+  private async removeAdBanner(){
+    this.isActiveShowAdBannerOption  = false;
+    await this.AdMob_removeBanner();
   }
   //===========================================================================
   public async showAdReward(callback: any){
